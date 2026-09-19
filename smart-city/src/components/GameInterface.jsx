@@ -44,6 +44,7 @@ export default function GameInterface({ onQuit }) {
       setTimeout(() => {
         const newState = applyEventResult(gameState, option);
         setGameState(newState);
+        addLog('Ambulance dispatched to Residential Area A.');
         setCurrentEvent(null);
       }, 1500);
     } else {

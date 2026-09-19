@@ -48,7 +48,12 @@ const possibleEvents = [
     title: '🚨 MEDICAL EMERGENCY',
     description: 'Medical emergency reported in Residential Area A.',
     options: [
-      { text: 'DISPATCH AMBULANCE', cost: 0, effect: { safety: 0, traffic: 0 } }
+      { 
+        text: 'DISPATCH AMBULANCE', 
+        cost: 0, 
+        effect: { safety: 0, traffic: 0 },
+        action: { type: 'dispatch_ambulance', vehicleId: 'amb1', destination: 'resA' }
+      }
     ]
   }
 ];
@@ -59,11 +64,25 @@ export function getRandomEvent() {
 }
 
 export function applyEventResult(state, option) {
+  let newCityState = { ...state.cityState };
+
+  if (option.action && option.action.type === 'dispatch_ambulance') {
+    newCityState = {
+      ...newCityState,
+      vehicles: newCityState.vehicles.map(v => 
+        v.id === option.action.vehicleId 
+          ? { ...v, status: 'Dispatched', isAvailable: false, destination: option.action.destination }
+          : v
+      )
+    };
+  }
+
   return {
     ...state,
     budget: state.budget - option.cost,
     populationSafety: Math.max(0, Math.min(100, state.populationSafety + option.effect.safety)),
     trafficFlow: Math.max(0, Math.min(100, state.trafficFlow + option.effect.traffic)),
-    day: state.day + 1
+    day: state.day + 1,
+    cityState: newCityState
   };
 }
