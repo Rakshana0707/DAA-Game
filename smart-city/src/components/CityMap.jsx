@@ -1,0 +1,119 @@
+import React from 'react';
+import { Home, Hospital, Flame, Shield, School } from 'lucide-react';
+
+export default function CityMap({ cityState, onNodeClick }) {
+  // Simple layout scaling
+  const mapWidth = 800;
+  const mapHeight = 500;
+  
+  const getIcon = (type) => {
+    switch (type) {
+      case 'house': return <Home size={24} color="#3b82f6" />;
+      case 'hospital': return <Hospital size={24} color="#ef4444" />;
+      case 'firestation': return <Flame size={24} color="#f97316" />;
+      case 'policestation': return <Shield size={24} color="#3b82f6" />;
+      case 'school': return <School size={24} color="#eab308" />;
+      default: return <Home size={24} />;
+    }
+  };
+
+  const getLabel = (type) => {
+    switch (type) {
+      case 'house': return 'Resid.';
+      case 'hospital': return 'Hosp.';
+      case 'firestation': return 'Fire';
+      case 'policestation': return 'Police';
+      case 'school': return 'School';
+      default: return '';
+    }
+  };
+
+  return (
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      height: '100%',
+      backgroundColor: '#d1d5db',
+      backgroundImage: 'radial-gradient(#9ca3af 1px, transparent 1px)',
+      backgroundSize: '20px 20px',
+      overflow: 'hidden',
+      borderRadius: '0.5rem',
+      boxShadow: 'inset 0 0 20px rgba(0,0,0,0.1)'
+    }}>
+      {/* Draw Edges (Roads) */}
+      <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+        {cityState.edges.map(edge => {
+          const fromNode = cityState.nodes.find(n => n.id === edge.from);
+          const toNode = cityState.nodes.find(n => n.id === edge.to);
+          
+          if (!fromNode || !toNode) return null;
+
+          return (
+            <line
+              key={edge.id}
+              x1={`${fromNode.x}%`}
+              y1={`${fromNode.y}%`}
+              x2={`${toNode.x}%`}
+              y2={`${toNode.y}%`}
+              stroke="#6b7280"
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+          );
+        })}
+      </svg>
+
+      {/* Draw Nodes (Buildings) */}
+      {cityState.nodes.map(node => (
+        <div
+          key={node.id}
+          onClick={() => onNodeClick(node)}
+          style={{
+            position: 'absolute',
+            left: `${node.x}%`,
+            top: `${node.y}%`,
+            transform: 'translate(-50%, -50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            cursor: 'pointer',
+            transition: 'transform 0.2s',
+          }}
+          className="city-node"
+        >
+          <div style={{
+            backgroundColor: 'white',
+            padding: '0.5rem',
+            borderRadius: '50%',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px solid #e5e7eb'
+          }}>
+            {getIcon(node.type)}
+          </div>
+          <span style={{
+            marginTop: '0.25rem',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            padding: '0.1rem 0.4rem',
+            borderRadius: '0.25rem',
+            fontSize: '0.75rem',
+            fontWeight: 'bold',
+            color: '#374151'
+          }}>
+            {getLabel(node.type)}
+          </span>
+        </div>
+      ))}
+      
+      {/* Add a little style tag for hover effects since we are not using full tailwind */}
+      <style>{`
+        .city-node:hover {
+          transform: translate(-50%, -50%) scale(1.1) !important;
+          z-index: 10;
+        }
+      `}</style>
+    </div>
+  );
+}
