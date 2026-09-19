@@ -9,6 +9,46 @@ export default function GameInterface({ onQuit }) {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [logs, setLogs] = useState(['Game started. Level 1: "First Day in the City".']);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGameState(prev => {
+        const hasMoving = prev.cityState.vehicles.some(v => v.status === 'Dispatched');
+        if (!hasMoving) return prev;
+
+        let justArrived = false;
+        const newVehicles = prev.cityState.vehicles.map(v => {
+          if (v.status === 'Dispatched' && v.path) {
+            let p = v.progress + 0.05; // 1 second per edge (50ms * 20 = 1000ms)
+            let idx = v.pathIndex;
+            if (p >= 1) {
+              p = 0;
+              idx++;
+            }
+            if (idx >= v.path.length - 1) {
+              justArrived = true;
+              return { ...v, status: 'Arrived', currentLocation: v.destination, path: null };
+            }
+            return { ...v, progress: p, pathIndex: idx, currentLocation: null };
+          }
+          return v;
+        });
+
+        if (justArrived) {
+          setTimeout(() => {
+            setLogs(prevLogs => [...prevLogs, 'Ambulance arrived at the emergency.'].slice(-5));
+          }, 0);
+        }
+
+        return {
+          ...prev,
+          cityState: { ...prev.cityState, vehicles: newVehicles }
+        };
+      });
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const addLog = (msg) => {
     setLogs(prev => [...prev, msg].slice(-5)); // Keep last 5 logs
   };

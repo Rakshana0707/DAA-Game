@@ -65,6 +65,33 @@ export default function CityMap({ cityState, onNodeClick }) {
         })}
       </svg>
 
+      {/* Draw Moving Vehicles */}
+      {cityState.vehicles.filter(v => v.status === 'Dispatched' && v.path).map(vehicle => {
+        const fromNode = cityState.nodes.find(n => n.id === vehicle.path[vehicle.pathIndex]);
+        const toNode = cityState.nodes.find(n => n.id === vehicle.path[vehicle.pathIndex + 1]);
+        if (!fromNode || !toNode) return null;
+
+        const currentX = fromNode.x + (toNode.x - fromNode.x) * vehicle.progress;
+        const currentY = fromNode.y + (toNode.y - fromNode.y) * vehicle.progress;
+
+        return (
+          <div key={vehicle.id} style={{
+            position: 'absolute',
+            left: `${currentX}%`,
+            top: `${currentY}%`,
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'white',
+            padding: '2px',
+            borderRadius: '50%',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+            border: vehicle.type === 'ambulance' ? '2px solid #ef4444' : '2px solid #3b82f6',
+            zIndex: 20
+          }}>
+            {vehicle.type === 'ambulance' && <Ambulance size={20} color="#ef4444" />}
+          </div>
+        );
+      })}
+
       {/* Draw Nodes (Buildings) */}
       {cityState.nodes.map(node => (
         <div

@@ -71,7 +71,15 @@ export function applyEventResult(state, option) {
       ...newCityState,
       vehicles: newCityState.vehicles.map(v => 
         v.id === option.action.vehicleId 
-          ? { ...v, status: 'Dispatched', isAvailable: false, destination: option.action.destination }
+          ? { 
+              ...v, 
+              status: 'Dispatched', 
+              isAvailable: false, 
+              destination: option.action.destination,
+              path: ['hosp', 'int1', 'resA'],
+              pathIndex: 0,
+              progress: 0
+            }
           : v
       )
     };
