@@ -11,58 +11,29 @@ export const initialGameState = {
   energyLevel: 100, // 0 to 100
   events: [],
   cityState: {
-    // Basic graph structure for the city map
+    // Level 1: "First Day in the City" - Tutorial Map
     nodes: [
-      { id: 'h1', type: 'house', x: 20, y: 20, name: 'Residential Zone A' },
-      { id: 'h2', type: 'house', x: 80, y: 20, name: 'Residential Zone B' },
-      { id: 'hosp1', type: 'hospital', x: 20, y: 80, name: 'City Hospital' },
-      { id: 'fire1', type: 'firestation', x: 80, y: 80, name: 'Fire Department' },
-      { id: 'pol1', type: 'policestation', x: 50, y: 50, name: 'Central Police' },
-      { id: 'sch1', type: 'school', x: 50, y: 20, name: 'High School' }
+      { id: 'hosp', type: 'hospital', x: 20, y: 50, name: 'City Hospital', hasAmbulance: true },
+      { id: 'resA', type: 'house', x: 50, y: 20, name: 'Residential Area A' },
+      { id: 'fire', type: 'firestation', x: 50, y: 80, name: 'Fire Station' },
+      { id: 'int1', type: 'intersection', x: 50, y: 50, name: 'Main Intersection' },
+      { id: 'int2', type: 'intersection', x: 80, y: 50, name: 'East Intersection' },
+      { id: 'police', type: 'policestation', x: 80, y: 20, name: 'Police Station' }
     ],
+    // 3-4 main roads, 2 intersections. 
+    // Here we use edges to connect them to form the roads.
     edges: [
-      { id: 'e1', from: 'h1', to: 'sch1', distance: 30, traffic: 0 },
-      { id: 'e2', from: 'sch1', to: 'h2', distance: 30, traffic: 0 },
-      { id: 'e3', from: 'h1', to: 'pol1', distance: 40, traffic: 0 },
-      { id: 'e4', from: 'h2', to: 'pol1', distance: 40, traffic: 0 },
-      { id: 'e5', from: 'pol1', to: 'hosp1', distance: 40, traffic: 0 },
-      { id: 'e6', from: 'pol1', to: 'fire1', distance: 40, traffic: 0 },
-      { id: 'e7', from: 'hosp1', to: 'fire1', distance: 60, traffic: 0 }
+      { id: 'e1', from: 'hosp', to: 'int1', distance: 30, traffic: 0, name: 'West Road' },
+      { id: 'e2', from: 'resA', to: 'int1', distance: 30, traffic: 0, name: 'North Road' },
+      { id: 'e3', from: 'fire', to: 'int1', distance: 30, traffic: 0, name: 'South Road' },
+      { id: 'e4', from: 'int1', to: 'int2', distance: 30, traffic: 0, name: 'Main Street' },
+      { id: 'e5', from: 'int2', to: 'police', distance: 30, traffic: 0, name: 'East Road' }
     ],
-    vehicles: [] // e.g. { id: 'v1', type: 'ambulance', position: { edgeId: 'e5', progress: 0.5 } }
+    vehicles: [] 
   }
 };
 
-// Possible random events for the game loop
-const possibleEvents = [
-  {
-    id: 'ev_fire_1',
-    title: 'Small Fire in Residential Zone A',
-    description: 'A fire broke out! Dispatch a fire truck quickly.',
-    options: [
-      { text: 'Dispatch Fire Truck ($500)', cost: 500, effect: { safety: 5, traffic: -10 } },
-      { text: 'Ignore', cost: 0, effect: { safety: -20, traffic: 0 } }
-    ]
-  },
-  {
-    id: 'ev_traffic_1',
-    title: 'Traffic Jam near High School',
-    description: 'School rush hour is causing major delays.',
-    options: [
-      { text: 'Deploy Traffic Police ($300)', cost: 300, effect: { safety: 0, traffic: 20 } },
-      { text: 'Let it resolve naturally', cost: 0, effect: { safety: -5, traffic: -20 } }
-    ]
-  },
-  {
-    id: 'ev_medical_1',
-    title: 'Medical Emergency',
-    description: 'Citizen requires immediate medical transport.',
-    options: [
-      { text: 'Dispatch Ambulance ($400)', cost: 400, effect: { safety: 10, traffic: -5 } },
-      { text: 'No ambulances available', cost: 0, effect: { safety: -15, traffic: 0 } }
-    ]
-  }
-];
+const possibleEvents = [];
 
 export function getRandomEvent() {
   const index = Math.floor(Math.random() * possibleEvents.length);

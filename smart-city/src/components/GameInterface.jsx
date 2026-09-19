@@ -7,18 +7,21 @@ import { LogOut, ArrowRight, AlertTriangle } from 'lucide-react';
 export default function GameInterface({ onQuit }) {
   const [gameState, setGameState] = useState(initialGameState);
   const [currentEvent, setCurrentEvent] = useState(null);
-  const [logs, setLogs] = useState(['Game started. Welcome to City Operations.']);
+  const [logs, setLogs] = useState(['Game started. Level 1: "First Day in the City".']);
 
   const addLog = (msg) => {
     setLogs(prev => [...prev, msg].slice(-5)); // Keep last 5 logs
   };
 
   const handleNextDay = () => {
-    // 1. City operates normally
-    // 2. An event occurs
     const newEvent = getRandomEvent();
-    setCurrentEvent(newEvent);
-    addLog(`Day ${gameState.day} started. Event: ${newEvent.title}`);
+    if (newEvent) {
+      setCurrentEvent(newEvent);
+      addLog(`Day ${gameState.day} started. Event: ${newEvent.title}`);
+    } else {
+      setGameState(prev => ({ ...prev, day: prev.day + 1 }));
+      addLog(`Day ${gameState.day} started. All clear, no events.`);
+    }
   };
 
   const handleOptionSelect = (option) => {

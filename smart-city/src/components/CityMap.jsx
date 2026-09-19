@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Hospital, Flame, Shield, School } from 'lucide-react';
+import { Home, Hospital, Flame, Shield, School, Circle, Ambulance } from 'lucide-react';
 
 export default function CityMap({ cityState, onNodeClick }) {
   // Simple layout scaling
@@ -13,6 +13,7 @@ export default function CityMap({ cityState, onNodeClick }) {
       case 'firestation': return <Flame size={24} color="#f97316" />;
       case 'policestation': return <Shield size={24} color="#3b82f6" />;
       case 'school': return <School size={24} color="#eab308" />;
+      case 'intersection': return <Circle size={16} color="#4b5563" />;
       default: return <Home size={24} />;
     }
   };
@@ -24,6 +25,7 @@ export default function CityMap({ cityState, onNodeClick }) {
       case 'firestation': return 'Fire';
       case 'policestation': return 'Police';
       case 'school': return 'School';
+      case 'intersection': return '';
       default: return '';
     }
   };
@@ -89,21 +91,38 @@ export default function CityMap({ cityState, onNodeClick }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '2px solid #e5e7eb'
+            border: node.type === 'intersection' ? 'none' : '2px solid #e5e7eb',
+            position: 'relative'
           }}>
             {getIcon(node.type)}
+            {node.hasAmbulance && (
+              <div style={{
+                position: 'absolute',
+                top: '-10px',
+                right: '-15px',
+                backgroundColor: 'white',
+                padding: '2px',
+                borderRadius: '50%',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                border: '1px solid #ef4444'
+              }}>
+                <Ambulance size={16} color="#ef4444" />
+              </div>
+            )}
           </div>
-          <span style={{
-            marginTop: '0.25rem',
-            backgroundColor: 'rgba(255,255,255,0.9)',
-            padding: '0.1rem 0.4rem',
-            borderRadius: '0.25rem',
-            fontSize: '0.75rem',
-            fontWeight: 'bold',
-            color: '#374151'
-          }}>
-            {getLabel(node.type)}
-          </span>
+          {getLabel(node.type) && (
+            <span style={{
+              marginTop: '0.25rem',
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              padding: '0.1rem 0.4rem',
+              borderRadius: '0.25rem',
+              fontSize: '0.75rem',
+              fontWeight: 'bold',
+              color: '#374151'
+            }}>
+              {getLabel(node.type)}
+            </span>
+          )}
         </div>
       ))}
       
