@@ -95,8 +95,8 @@ export default function CityMap({ cityState, onNodeClick }) {
             position: 'relative'
           }}>
             {getIcon(node.type)}
-            {node.hasAmbulance && (
-              <div style={{
+            {cityState.vehicles.filter(v => v.currentLocation === node.id).map((vehicle, idx) => (
+              <div key={vehicle.id} style={{
                 position: 'absolute',
                 top: '-10px',
                 right: '-15px',
@@ -104,11 +104,12 @@ export default function CityMap({ cityState, onNodeClick }) {
                 padding: '2px',
                 borderRadius: '50%',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                border: '1px solid #ef4444'
+                border: vehicle.type === 'ambulance' ? '1px solid #ef4444' : '1px solid #3b82f6',
+                transform: `translateX(${idx * 20}px)` // Offset slightly if multiple
               }}>
-                <Ambulance size={16} color="#ef4444" />
+                {vehicle.type === 'ambulance' && <Ambulance size={16} color="#ef4444" />}
               </div>
-            )}
+            ))}
           </div>
           {getLabel(node.type) && (
             <span style={{

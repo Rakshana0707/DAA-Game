@@ -13,7 +13,7 @@ export const initialGameState = {
   cityState: {
     // Level 1: "First Day in the City" - Tutorial Map
     nodes: [
-      { id: 'hosp', type: 'hospital', x: 20, y: 50, name: 'City Hospital', hasAmbulance: true },
+      { id: 'hosp', type: 'hospital', x: 20, y: 50, name: 'City Hospital' },
       { id: 'resA', type: 'house', x: 50, y: 20, name: 'Residential Area A' },
       { id: 'fire', type: 'firestation', x: 50, y: 80, name: 'Fire Station' },
       { id: 'int1', type: 'intersection', x: 50, y: 50, name: 'Main Intersection' },
@@ -29,7 +29,16 @@ export const initialGameState = {
       { id: 'e4', from: 'int1', to: 'int2', distance: 30, traffic: 0, name: 'Main Street' },
       { id: 'e5', from: 'int2', to: 'police', distance: 30, traffic: 0, name: 'East Road' }
     ],
-    vehicles: [] 
+    vehicles: [
+      {
+        id: 'amb1',
+        type: 'ambulance',
+        currentLocation: 'hosp', // Currently stationary at a node
+        status: 'Idle',
+        destination: null,
+        isAvailable: true
+      }
+    ]
   }
 };
 
