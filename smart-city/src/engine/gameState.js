@@ -42,7 +42,16 @@ export const initialGameState = {
   }
 };
 
-const possibleEvents = [];
+const possibleEvents = [
+  {
+    id: 'lvl1_med_1',
+    title: '🚨 MEDICAL EMERGENCY',
+    description: 'Medical emergency reported in Residential Area A.',
+    options: [
+      { text: 'DISPATCH AMBULANCE', cost: 0, effect: { safety: 0, traffic: 0 } }
+    ]
+  }
+];
 
 export function getRandomEvent() {
   const index = Math.floor(Math.random() * possibleEvents.length);

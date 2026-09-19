@@ -16,8 +16,11 @@ export default function GameInterface({ onQuit }) {
   const handleNextDay = () => {
     const newEvent = getRandomEvent();
     if (newEvent) {
-      setCurrentEvent(newEvent);
-      addLog(`Day ${gameState.day} started. Event: ${newEvent.title}`);
+      addLog(`Day ${gameState.day} started. Monitoring city...`);
+      setTimeout(() => {
+        setCurrentEvent(newEvent);
+        addLog(`Event: ${newEvent.title}`);
+      }, 1500);
     } else {
       setGameState(prev => ({ ...prev, day: prev.day + 1 }));
       addLog(`Day ${gameState.day} started. All clear, no events.`);
@@ -30,13 +33,25 @@ export default function GameInterface({ onQuit }) {
       return;
     }
     
-    // 3. Player responds, City state changes
-    const newState = applyEventResult(gameState, option);
-    setGameState(newState);
-    
-    // 4. Result received
-    addLog(`Action taken: ${option.text}. Safety: ${option.effect.safety > 0 ? '+' : ''}${option.effect.safety}, Traffic: ${option.effect.traffic > 0 ? '+' : ''}${option.effect.traffic}`);
-    setCurrentEvent(null);
+    // Show confirmation on the button
+    if (option.text === 'DISPATCH AMBULANCE') {
+      setCurrentEvent(prev => ({
+        ...prev,
+        options: [{ ...option, text: 'Ambulance dispatch requested...' }]
+      }));
+      addLog('Ambulance dispatch requested.');
+      
+      setTimeout(() => {
+        const newState = applyEventResult(gameState, option);
+        setGameState(newState);
+        setCurrentEvent(null);
+      }, 1500);
+    } else {
+      const newState = applyEventResult(gameState, option);
+      setGameState(newState);
+      addLog(`Action taken: ${option.text}. Safety: ${option.effect.safety > 0 ? '+' : ''}${option.effect.safety}, Traffic: ${option.effect.traffic > 0 ? '+' : ''}${option.effect.traffic}`);
+      setCurrentEvent(null);
+    }
   };
 
   const handleNodeClick = (node) => {
@@ -126,18 +141,18 @@ export default function GameInterface({ onQuit }) {
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {currentEvent.options.map((opt, idx) => (
-                    <button
-                      key={idx}
-                      className="btn"
-                      style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        backgroundColor: gameState.budget >= opt.cost ? '#3b82f6' : '#9ca3af',
-                        textAlign: 'left'
-                      }}
-                      onClick={() => handleOptionSelect(opt)}
-                      disabled={gameState.budget < opt.cost}
-                    >
+                      <button
+                        key={idx}
+                        className="btn"
+                        style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          backgroundColor: gameState.budget >= opt.cost && opt.text !== 'Ambulance dispatch requested...' ? '#3b82f6' : '#9ca3af',
+                          textAlign: 'left'
+                        }}
+                        onClick={() => handleOptionSelect(opt)}
+                        disabled={gameState.budget < opt.cost || opt.text === 'Ambulance dispatch requested...'}
+                      >
                       <span>{opt.text}</span>
                       {opt.cost > 0 && <span style={{ fontFamily: 'monospace' }}>-${opt.cost}</span>}
                     </button>
