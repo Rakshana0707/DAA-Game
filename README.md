@@ -62,6 +62,33 @@ The city becomes progressively more complex as the player advances through the l
 
 ---
 
+## 🚧 Current Progress
+
+- [x] Base game structure
+- [x] Level management
+- [x] Level 1 city map
+- [x] Ambulance system
+- [x] Medical emergency
+- [x] Emergency dispatch
+- [x] Ambulance movement
+- [x] Emergency response timer
+- [x] Binary Search implementation
+- [x] Binary Search integration
+- [x] Level 1 success/failure system
+- [x] Level 1 completion screen
+- [x] Level 2 unlocked
+- [ ] Level 2 — Busy Morning
+- [ ] Level 3 — Rush Hour
+- [ ] Level 4 — Emergency Route
+- [ ] Level 5 — City Expansion
+- [ ] Level 6 — Emergency Supply Crisis
+- [ ] Level 7 — City-Wide Transport
+- [ ] Level 8 — Communication Breakdown
+- [ ] Level 9 — Clean City
+- [ ] Level 10 — The City Crisis
+
+---
+
 ## 🧠 DAA Behind the Game
 
 The algorithms are implemented as separate modules and are called by the game engine whenever a suitable situation occurs.
