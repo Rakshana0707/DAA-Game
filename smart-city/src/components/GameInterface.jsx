@@ -170,8 +170,9 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
         addLog(`Ambulance ${isAmb1 ? '1' : '2'} dispatched to Residential Area A.`);
 
         if (level === 1) {
+          // Traffic complication
           setTimeout(() => {
-            setCurrentEvent(prev => prev ? {
+            setCurrentEvent(prev => (prev && prev.missionStatus !== 'SUCCESS' && prev.missionStatus !== 'FAILED') ? {
               ...prev,
               title: '⚠️ CITY UPDATE',
               description: 'Traffic congestion has developed near the ambulance route.\n\nTraffic condition:\nNORMAL → BUSY',
@@ -179,9 +180,23 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                 { text: 'CONTINUE ROUTE', cost: 0, effect: { safety: 0, traffic: -10 }, action: { type: 'continue_route' } },
                 { text: 'REROUTE', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'reroute_ambulance', vehicleId: option.action.vehicleId } }
               ]
-            } : null);
+            } : prev);
             addLog('City Update: Traffic congestion detected.');
           }, 6000);
+
+          // Hospital complication
+          setTimeout(() => {
+            setCurrentEvent(prev => (prev && prev.missionStatus !== 'SUCCESS' && prev.missionStatus !== 'FAILED') ? {
+              ...prev,
+              title: '🏥 HOSPITAL UPDATE',
+              description: 'Incoming patient expected.\n\nCurrent hospital capacity: 70%',
+              options: [
+                { text: 'PREPARE HOSPITAL', cost: 0, effect: { safety: 5, traffic: 0 }, action: { type: 'prepare_hospital' } },
+                { text: 'CONTINUE MONITORING', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'continue_monitoring' } }
+              ]
+            } : prev);
+            addLog('Hospital Update: Incoming patient expected.');
+          }, 15000);
         }
       }, 1500);
     } else if (option.action && option.action.type === 'continue_route') {
@@ -215,6 +230,26 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
         }
       }));
       addLog('Ambulance rerouted to avoid traffic. (+3s delay)');
+    } else if (option.action && option.action.type === 'prepare_hospital') {
+      setCurrentEvent(prev => ({
+        ...prev,
+        title: '🏥 HOSPITAL UPDATE',
+        description: 'Hospital prepared for incoming patient.\nReadiness increased.\n\nStatus: Responding\nDestination: Residential Area A',
+        options: []
+      }));
+      const newState = applyEventResult(gameState, option);
+      setGameState(newState);
+      addLog('Hospital prepared for incoming patient. Outcome improved.');
+    } else if (option.action && option.action.type === 'continue_monitoring') {
+      setCurrentEvent(prev => ({
+        ...prev,
+        title: '🏥 HOSPITAL UPDATE',
+        description: 'Monitoring incoming patient.\nCapacity unchanged.\n\nStatus: Responding\nDestination: Residential Area A',
+        options: []
+      }));
+      const newState = applyEventResult(gameState, option);
+      setGameState(newState);
+      addLog('Hospital monitoring incoming patient.');
     } else {
       const newState = applyEventResult(gameState, option);
       setGameState(newState);
