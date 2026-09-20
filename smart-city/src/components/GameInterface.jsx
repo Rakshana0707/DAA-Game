@@ -8,7 +8,7 @@ import { LogOut, ArrowRight, AlertTriangle, Activity, HelpCircle } from 'lucide-
 
 export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
   const [gameState, setGameState] = useState(getInitialGameState(level));
-  const [showIntro, setShowIntro] = useState(level === 2);
+  const [showIntro, setShowIntro] = useState(level === 1 || level === 2);
   const [currentEvent, setCurrentEvent] = useState(null);
   const [levelComplete, setLevelComplete] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -442,17 +442,48 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
             backgroundColor: 'white', padding: '3rem', borderRadius: '1rem',
             maxWidth: '600px', textAlign: 'center'
           }}>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#f59e0b', marginBottom: '1rem' }}>LEVEL 2: Busy Morning</h1>
-            <p style={{ fontSize: '1.25rem', color: '#475569', marginBottom: '2rem', lineHeight: '1.6' }}>
-              The city begins a busy morning. Three incidents will eventually occur:
-              <br/><br/>
-              🚑 Medical Emergency (Medium Severity)<br/>
-              🔥 Small Fire (Medium Severity)<br/>
-              🚗 Road Accident (Low Severity)
-            </p>
-            <button className="btn" style={{ backgroundColor: '#3b82f6', width: '100%', fontSize: '1.25rem' }} onClick={() => setShowIntro(false)}>
-              BEGIN LEVEL
-            </button>
+            {level === 1 ? (
+              <>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>DAY 1 — 08:00 AM</h1>
+                <h2 style={{ fontSize: '1.5rem', color: '#1e293b', marginBottom: '0.5rem' }}>CITY STATUS</h2>
+                <p style={{ fontSize: '1.1rem', color: '#475569', marginBottom: '1rem' }}>Everything is currently normal.</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', textAlign: 'left', backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem' }}>
+                  <div><strong>Budget:</strong> ${gameState.budget}</div>
+                  <div><strong>Safety:</strong> {gameState.populationSafety}%</div>
+                  <div><strong>Traffic:</strong> {gameState.trafficFlow}%</div>
+                  <div><strong>Energy:</strong> {gameState.energyLevel}%</div>
+                </div>
+                <h2 style={{ fontSize: '1.5rem', color: '#1e293b', marginBottom: '0.5rem' }}>AVAILABLE SERVICES</h2>
+                <div style={{ textAlign: 'left', backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '1.1rem' }}>
+                  <div>🚑 Ambulances: 2</div>
+                  <div>🚒 Fire Truck: 1</div>
+                  <div>🏥 Hospital: Normal</div>
+                </div>
+                <p style={{ fontSize: '1.1rem', color: '#475569', marginBottom: '2rem', fontStyle: 'italic' }}>
+                  You are starting your first day as the City Operations Manager. Monitor the city and respond when an incident occurs.
+                </p>
+                <button className="btn" style={{ backgroundColor: '#3b82f6', width: '100%', fontSize: '1.25rem' }} onClick={() => {
+                  setShowIntro(false);
+                  handleNextDay();
+                }}>
+                  START DAY 1
+                </button>
+              </>
+            ) : (
+              <>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#f59e0b', marginBottom: '1rem' }}>LEVEL 2: Busy Morning</h1>
+                <p style={{ fontSize: '1.25rem', color: '#475569', marginBottom: '2rem', lineHeight: '1.6' }}>
+                  The city begins a busy morning. Three incidents will eventually occur:
+                  <br/><br/>
+                  🚑 Medical Emergency (Medium Severity)<br/>
+                  🔥 Small Fire (Medium Severity)<br/>
+                  🚗 Road Accident (Low Severity)
+                </p>
+                <button className="btn" style={{ backgroundColor: '#3b82f6', width: '100%', fontSize: '1.25rem' }} onClick={() => setShowIntro(false)}>
+                  BEGIN LEVEL
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
