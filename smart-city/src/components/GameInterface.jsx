@@ -2,12 +2,42 @@ import React, { useState, useEffect } from 'react';
 import StatusBar from './StatusBar';
 import CityMap from './CityMap';
 import { initialGameState, getRandomEvent, applyEventResult } from '../engine/gameState';
-import { LogOut, ArrowRight, AlertTriangle } from 'lucide-react';
+import { binarySearch } from '../engine/algorithms/binarySearch';
+import { LogOut, ArrowRight, AlertTriangle, Activity } from 'lucide-react';
 
 export default function GameInterface({ onQuit }) {
   const [gameState, setGameState] = useState(initialGameState);
   const [currentEvent, setCurrentEvent] = useState(null);
   const [logs, setLogs] = useState(['Game started. Level 1: "First Day in the City".']);
+  const [recommendedVehicles, setRecommendedVehicles] = useState(null);
+
+  // Run Resource Analysis on mount
+  useEffect(() => {
+    console.log("Running City Resource Analysis via Binary Search...");
+    // The city has a response-time target.
+    // Possible ambulance counts to evaluate:
+    const possibleCounts = [1, 2, 3, 4, 5, 6, 7];
+    
+    // We map these counts to a strictly sorted set of strings so we can use our exact binary search.
+    // 0_NOT_SATISFIED < 1_SATISFIED_MINIMUM < 2_SATISFIED_SURPLUS
+    const evaluationArray = possibleCounts.map(count => {
+      // Conceptual logic: target is satisfied at 3 ambulances
+      if (count < 3) return "0_NOT_SATISFIED";
+      if (count === 3) return "1_SATISFIED_MINIMUM";
+      return "2_SATISFIED_SURPLUS";
+    });
+    
+    // Use the exact Binary Search implementation to find the minimum valid value
+    const foundIndex = binarySearch(evaluationArray, "1_SATISFIED_MINIMUM");
+    
+    if (foundIndex !== -1) {
+      const minRequired = possibleCounts[foundIndex];
+      console.log(`Binary Search found minimum required ambulances at index ${foundIndex}: ${minRequired}`);
+      setRecommendedVehicles(minRequired);
+    } else {
+      console.log("Binary Search failed to find a valid minimum.");
+    }
+  }, []);
 
   // Movement loop
   useEffect(() => {
@@ -163,6 +193,19 @@ export default function GameInterface({ onQuit }) {
               ))}
             </ul>
           </div>
+
+          {/* Resource Analysis Panel */}
+          {recommendedVehicles !== null && (
+            <div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#3b82f6', marginBottom: '0.25rem' }}>
+                <Activity size={16} />
+                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase' }}>City Resource Analysis</span>
+              </div>
+              <div style={{ fontSize: '0.875rem', color: '#475569' }}>
+                Recommended emergency vehicles: <strong>{recommendedVehicles}</strong>
+              </div>
+            </div>
+          )}
 
           <button 
             className="btn"
