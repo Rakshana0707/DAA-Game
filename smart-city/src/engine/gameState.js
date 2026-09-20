@@ -2,9 +2,23 @@
 // This is designed to be modular. Future algorithms (e.g. Dijkstra for routing, 
 // Knapsack for budget optimization) can be plugged in here to affect the state.
 
+export const LEVELS = [
+  { id: 1, name: "First Day in the City" },
+  { id: 2, name: "Busy Morning" },
+  { id: 3, name: "Rush Hour" },
+  { id: 4, name: "Power Grid Crisis" },
+  { id: 5, name: "Storm Warning" },
+  { id: 6, name: "Downtown Gridlock" },
+  { id: 7, name: "Hospital Surge" },
+  { id: 8, name: "Bridge Bottleneck" },
+  { id: 9, name: "Subway Outage" },
+  { id: 10, name: "Smart Metro Master" }
+];
+
 export const initialGameState = {
   day: 1,
   level: 1,
+  unlockedLevels: [1],
   budget: 10000,
   populationSafety: 100, // 0 to 100
   trafficFlow: 100, // 0 to 100

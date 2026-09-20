@@ -5,9 +5,10 @@ import { initialGameState, getRandomEvent, applyEventResult } from '../engine/ga
 import { binarySearch } from '../engine/algorithms/binarySearch';
 import { LogOut, ArrowRight, AlertTriangle, Activity } from 'lucide-react';
 
-export default function GameInterface({ onQuit }) {
+export default function GameInterface({ onQuit, onLevelComplete }) {
   const [gameState, setGameState] = useState(initialGameState);
   const [currentEvent, setCurrentEvent] = useState(null);
+  const [levelComplete, setLevelComplete] = useState(null);
   const [logs, setLogs] = useState(['Game started. Level 1: "First Day in the City".']);
   const [recommendedVehicles, setRecommendedVehicles] = useState(null);
 
@@ -70,6 +71,9 @@ export default function GameInterface({ onQuit }) {
             setCurrentEvent(curr => {
               if (curr && curr.timeLeft > 0 && curr.missionStatus !== 'FAILED') {
                 setGameState(gs => ({ ...gs, populationSafety: Math.min(100, gs.populationSafety + 10) }));
+                if (onLevelComplete) {
+                  onLevelComplete(1);
+                }
                 return { ...curr, missionStatus: 'SUCCESS' };
               }
               return curr;
@@ -368,6 +372,9 @@ export default function GameInterface({ onQuit }) {
                     setLogs(['Game restarted. Level 1: "First Day in the City".']);
                   }}>
                     PLAY AGAIN
+                  </button>
+                  <button className="btn" style={{ backgroundColor: '#475569', flex: 1 }} onClick={onQuit}>
+                    LEVEL SELECTION
                   </button>
                   <button className="btn" style={{ backgroundColor: '#9ca3af', flex: 1, cursor: 'not-allowed' }} disabled>
                     NEXT LEVEL
