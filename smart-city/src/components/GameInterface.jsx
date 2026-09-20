@@ -295,10 +295,84 @@ export default function GameInterface({ onQuit }) {
                 </div>
 
                 {(currentEvent.missionStatus === 'SUCCESS' || currentEvent.missionStatus === 'FAILED') && (
-                  <button className="btn" onClick={() => setCurrentEvent(null)} style={{ width: '100%', marginTop: '1rem', backgroundColor: '#64748b' }}>
+                  <button className="btn" onClick={() => {
+                    if (currentEvent.missionStatus === 'SUCCESS') {
+                      setLevelComplete({
+                        citizensHelped: 1,
+                        responseTime: 60 - currentEvent.timeLeft,
+                        citySafety: gameState.populationSafety,
+                        budgetRemaining: gameState.budget
+                      });
+                    }
+                    setCurrentEvent(null);
+                  }} style={{ width: '100%', marginTop: '1rem', backgroundColor: '#64748b' }}>
                     Close
                   </button>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Level Complete Overlay */}
+          {levelComplete && (
+            <div style={{
+              position: 'absolute',
+              top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 100
+            }}>
+              <div style={{
+                backgroundColor: 'white',
+                padding: '3rem',
+                borderRadius: '1rem',
+                maxWidth: '600px',
+                width: '90%',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                textAlign: 'center'
+              }}>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#10b981', marginBottom: '0.5rem' }}>LEVEL 1 COMPLETE</h1>
+                <h2 style={{ fontSize: '1.25rem', color: '#64748b', marginBottom: '2rem' }}>First Day in the City</h2>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left', marginBottom: '2rem' }}>
+                  <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                    <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Citizens helped</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.citizensHelped}</div>
+                  </div>
+                  <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                    <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Response time</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.responseTime} seconds</div>
+                  </div>
+                  <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                    <div style={{ fontSize: '0.875rem', color: '#64748b' }}>City safety</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.citySafety}%</div>
+                  </div>
+                  <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                    <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Budget remaining</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>${levelComplete.budgetRemaining}</div>
+                  </div>
+                </div>
+
+                <div style={{ backgroundColor: '#eff6ff', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1d4ed8', marginBottom: '0.5rem' }}>DAA ENGINE</h3>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1e3a8a' }}>Binary Search</div>
+                  <div style={{ fontSize: '0.875rem', color: '#3b82f6' }}>Used for emergency vehicle resource estimation.</div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                  <button className="btn" style={{ backgroundColor: '#3b82f6', flex: 1 }} onClick={() => {
+                    setGameState(initialGameState);
+                    setLevelComplete(null);
+                    setLogs(['Game restarted. Level 1: "First Day in the City".']);
+                  }}>
+                    PLAY AGAIN
+                  </button>
+                  <button className="btn" style={{ backgroundColor: '#9ca3af', flex: 1, cursor: 'not-allowed' }} disabled>
+                    NEXT LEVEL
+                  </button>
+                </div>
               </div>
             </div>
           )}
