@@ -177,7 +177,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
               title: '⚠️ CITY UPDATE',
               description: 'Traffic congestion has developed near the ambulance route.\n\nTraffic condition:\nNORMAL → BUSY',
               options: [
-                { text: 'CONTINUE ROUTE', cost: 0, effect: { safety: 0, traffic: -10 }, action: { type: 'continue_route' } },
+                { text: 'CONTINUE ROUTE', cost: 0, effect: { safety: -5, traffic: -10 }, action: { type: 'continue_route' } },
                 { text: 'REROUTE', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'reroute_ambulance', vehicleId: option.action.vehicleId } }
               ]
             } : prev);
@@ -209,7 +209,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
       }));
       const newState = applyEventResult(gameState, option);
       setGameState(newState);
-      addLog('Ambulance continuing through traffic. (+8s delay)');
+      addLog('Ambulance continuing through traffic. (+8s delay, safety decreased)');
     } else if (option.action && option.action.type === 'reroute_ambulance') {
       setCurrentEvent(prev => ({
         ...prev,
