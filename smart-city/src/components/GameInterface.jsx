@@ -497,49 +497,108 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                 boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
                 textAlign: 'center'
               }}>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#10b981', marginBottom: '0.5rem' }}>LEVEL {level} COMPLETE</h1>
-                <h2 style={{ fontSize: '1.25rem', color: '#64748b', marginBottom: '2rem' }}>{level === 2 ? 'Busy Morning' : 'First Day in the City'}</h2>
+                {level === 1 ? (
+                  <>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>DAY 1 REPORT</h1>
+                    <div style={{ borderTop: '2px solid #e2e8f0', marginBottom: '1.5rem' }}></div>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left', marginBottom: '1.5rem' }}>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase' }}>Emergency Response</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b' }}>Response Time: {levelComplete.responseTime} sec</div>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Target: 60 sec</div>
+                      </div>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase' }}>Citizens Helped</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.citizensHelped}</div>
+                      </div>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase' }}>City Safety</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#10b981' }}>{levelComplete.citySafety}%</div>
+                      </div>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase' }}>Traffic</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#3b82f6' }}>{gameState.trafficFlow}%</div>
+                      </div>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase' }}>Hospital Readiness</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#8b5cf6' }}>{gameState.populationSafety >= 90 ? '95%' : '75%'}</div>
+                      </div>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase' }}>Budget Remaining</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>₹{levelComplete.budgetRemaining}</div>
+                      </div>
+                    </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left', marginBottom: '2rem' }}>
-                  <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
-                    <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Citizens helped</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.citizensHelped}</div>
-                  </div>
-                  <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
-                    <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Response time</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.responseTime} seconds</div>
-                  </div>
-                  <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
-                    <div style={{ fontSize: '0.875rem', color: '#64748b' }}>City safety</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.citySafety}%</div>
-                  </div>
-                  <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
-                    <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Budget remaining</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>${levelComplete.budgetRemaining}</div>
-                  </div>
-                </div>
+                    <div style={{ borderTop: '2px solid #e2e8f0', marginBottom: '1.5rem' }}></div>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', marginBottom: '1rem', textAlign: 'left' }}>CITY OPERATIONS</h2>
+                    <div style={{ textAlign: 'left', fontSize: '1.1rem', color: '#334155', marginBottom: '1.5rem', backgroundColor: '#f1f5f9', padding: '1rem', borderRadius: '0.5rem' }}>
+                      <div style={{ marginBottom: '0.5rem' }}><strong>Emergency:</strong> <span style={{ color: '#10b981' }}>RESOLVED</span></div>
+                      <div style={{ marginBottom: '0.5rem' }}><strong>Hospital:</strong> <span style={{ color: '#3b82f6' }}>STABLE</span></div>
+                      <div><strong>Traffic:</strong> <span style={{ color: '#3b82f6' }}>STABLE</span></div>
+                    </div>
 
-                <div style={{ backgroundColor: '#eff6ff', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1d4ed8', marginBottom: '0.5rem' }}>DAA ENGINE</h3>
-                  <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1e3a8a' }}>Binary Search</div>
-                  <div style={{ fontSize: '0.875rem', color: '#3b82f6' }}>Used for emergency vehicle resource estimation.</div>
-                </div>
+                    <div style={{ borderTop: '2px solid #e2e8f0', marginBottom: '1.5rem' }}></div>
+                    <div style={{ backgroundColor: '#eff6ff', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>
+                      <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1d4ed8', marginBottom: '0.5rem' }}>DAA ENGINE</h3>
+                      <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1e3a8a' }}>Binary Search</div>
+                      <div style={{ fontSize: '0.875rem', color: '#3b82f6' }}>Used for emergency resource estimation.</div>
+                    </div>
 
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                  <button className="btn" style={{ backgroundColor: '#3b82f6', flex: 1 }} onClick={() => {
-                    setGameState(getInitialGameState(level));
-                    setLevelComplete(null);
-                    setLogs([level === 2 ? 'Game restarted. Level 2: "Busy Morning".' : 'Game restarted. Level 1: "First Day in the City".']);
-                  }}>
-                    PLAY AGAIN
-                  </button>
-                  <button className="btn" style={{ backgroundColor: '#475569', flex: 1 }} onClick={onQuit}>
-                    LEVEL SELECTION
-                  </button>
-                  <button className="btn" style={{ backgroundColor: '#9ca3af', flex: 1, cursor: 'not-allowed' }} disabled>
-                    NEXT LEVEL
-                  </button>
-                </div>
+                    <div style={{ borderTop: '2px solid #e2e8f0', marginBottom: '1.5rem' }}></div>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                      <button className="btn" style={{ backgroundColor: '#3b82f6', flex: 1, fontSize: '1.25rem', padding: '1rem' }} onClick={onQuit}>
+                        CONTINUE
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#10b981', marginBottom: '0.5rem' }}>LEVEL {level} COMPLETE</h1>
+                    <h2 style={{ fontSize: '1.25rem', color: '#64748b', marginBottom: '2rem' }}>{level === 2 ? 'Busy Morning' : 'First Day in the City'}</h2>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left', marginBottom: '2rem' }}>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Citizens helped</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.citizensHelped}</div>
+                      </div>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Response time</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.responseTime} seconds</div>
+                      </div>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b' }}>City safety</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{levelComplete.citySafety}%</div>
+                      </div>
+                      <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
+                        <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Budget remaining</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>${levelComplete.budgetRemaining}</div>
+                      </div>
+                    </div>
+
+                    <div style={{ backgroundColor: '#eff6ff', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>
+                      <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1d4ed8', marginBottom: '0.5rem' }}>DAA ENGINE</h3>
+                      <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1e3a8a' }}>Binary Search</div>
+                      <div style={{ fontSize: '0.875rem', color: '#3b82f6' }}>Used for emergency vehicle resource estimation.</div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                      <button className="btn" style={{ backgroundColor: '#3b82f6', flex: 1 }} onClick={() => {
+                        setGameState(getInitialGameState(level));
+                        setLevelComplete(null);
+                        setLogs([level === 2 ? 'Game restarted. Level 2: "Busy Morning".' : 'Game restarted. Level 1: "First Day in the City".']);
+                      }}>
+                        PLAY AGAIN
+                      </button>
+                      <button className="btn" style={{ backgroundColor: '#475569', flex: 1 }} onClick={onQuit}>
+                        LEVEL SELECTION
+                      </button>
+                      <button className="btn" style={{ backgroundColor: '#9ca3af', flex: 1, cursor: 'not-allowed' }} disabled>
+                        NEXT LEVEL
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
