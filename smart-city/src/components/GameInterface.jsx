@@ -2,15 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import StatusBar from './StatusBar';
 import CityMap from './CityMap';
 import HelpGuideModal from './HelpGuideModal';
-import { initialGameState, getRandomEvent, applyEventResult } from '../engine/gameState';
+import { getInitialGameState, getRandomEvent, applyEventResult } from '../engine/gameState';
 import { binarySearch } from '../engine/algorithms/binarySearch';
 import { LogOut, ArrowRight, AlertTriangle, Activity, HelpCircle } from 'lucide-react';
 
 export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
-  const [gameState, setGameState] = useState({
-    ...initialGameState,
-    level: level
-  });
+  const [gameState, setGameState] = useState(getInitialGameState(level));
+  const [showIntro, setShowIntro] = useState(level === 2);
   const [currentEvent, setCurrentEvent] = useState(null);
   const [levelComplete, setLevelComplete] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -256,7 +254,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
             className="btn"
             style={{ marginTop: '1rem', backgroundColor: '#3b82f6', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
             onClick={() => {
-              setGameState({ ...initialGameState, level: level });
+              setGameState(getInitialGameState(level));
               setCurrentEvent(null);
               setLogs([
                 level === 2 ? 'Game restarted. Level 2: "Busy Morning".' : 'Game restarted. Level 1: "First Day in the City".'
@@ -408,9 +406,9 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
 
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                   <button className="btn" style={{ backgroundColor: '#3b82f6', flex: 1 }} onClick={() => {
-                    setGameState(initialGameState);
+                    setGameState(getInitialGameState(level));
                     setLevelComplete(null);
-                    setLogs(['Game restarted. Level 1: "First Day in the City".']);
+                    setLogs([level === 2 ? 'Game restarted. Level 2: "Busy Morning".' : 'Game restarted. Level 1: "First Day in the City".']);
                   }}>
                     PLAY AGAIN
                   </button>
@@ -426,6 +424,33 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
           )}
         </div>
       </div>
+
+      {/* Level Intro Overlay */}
+      {showIntro && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 100
+        }}>
+          <div style={{
+            backgroundColor: 'white', padding: '3rem', borderRadius: '1rem',
+            maxWidth: '600px', textAlign: 'center'
+          }}>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#f59e0b', marginBottom: '1rem' }}>LEVEL 2: Busy Morning</h1>
+            <p style={{ fontSize: '1.25rem', color: '#475569', marginBottom: '2rem', lineHeight: '1.6' }}>
+              The city begins a busy morning. Three incidents will eventually occur:
+              <br/><br/>
+              🚑 Medical Emergency (Medium Severity)<br/>
+              🔥 Small Fire (Medium Severity)<br/>
+              🚗 Road Accident (Low Severity)
+            </p>
+            <button className="btn" style={{ backgroundColor: '#3b82f6', width: '100%', fontSize: '1.25rem' }} onClick={() => setShowIntro(false)}>
+              BEGIN LEVEL
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Reusable In-Game Help / Guide Modal */}
       <HelpGuideModal

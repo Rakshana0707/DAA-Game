@@ -15,46 +15,80 @@ export const LEVELS = [
   { id: 10, name: "Smart Metro Master" }
 ];
 
-export const initialGameState = {
-  day: 1,
-  level: 1,
-  unlockedLevels: [1],
-  budget: 10000,
-  populationSafety: 100, // 0 to 100
-  trafficFlow: 100, // 0 to 100
-  energyLevel: 100, // 0 to 100
-  events: [],
-  cityState: {
-    // Level 1: "First Day in the City" - Tutorial Map
-    nodes: [
-      { id: 'hosp', type: 'hospital', x: 20, y: 50, name: 'City Hospital' },
-      { id: 'resA', type: 'house', x: 50, y: 20, name: 'Residential Area A' },
-      { id: 'fire', type: 'firestation', x: 50, y: 80, name: 'Fire Station' },
-      { id: 'int1', type: 'intersection', x: 50, y: 50, name: 'Main Intersection' },
-      { id: 'int2', type: 'intersection', x: 80, y: 50, name: 'East Intersection' },
-      { id: 'police', type: 'policestation', x: 80, y: 20, name: 'Police Station' }
-    ],
-    // 3-4 main roads, 2 intersections. 
-    // Here we use edges to connect them to form the roads.
-    edges: [
-      { id: 'e1', from: 'hosp', to: 'int1', distance: 30, traffic: 0, name: 'West Road' },
-      { id: 'e2', from: 'resA', to: 'int1', distance: 30, traffic: 0, name: 'North Road' },
-      { id: 'e3', from: 'fire', to: 'int1', distance: 30, traffic: 0, name: 'South Road' },
-      { id: 'e4', from: 'int1', to: 'int2', distance: 30, traffic: 0, name: 'Main Street' },
-      { id: 'e5', from: 'int2', to: 'police', distance: 30, traffic: 0, name: 'East Road' }
-    ],
-    vehicles: [
-      {
-        id: 'amb1',
-        type: 'ambulance',
-        currentLocation: 'hosp', // Currently stationary at a node
-        status: 'Idle',
-        destination: null,
-        isAvailable: true
-      }
-    ]
-  }
+export const level1CityState = {
+  // Level 1: "First Day in the City" - Tutorial Map
+  nodes: [
+    { id: 'hosp', type: 'hospital', x: 20, y: 50, name: 'City Hospital' },
+    { id: 'resA', type: 'house', x: 50, y: 20, name: 'Residential Area A' },
+    { id: 'fire', type: 'firestation', x: 50, y: 80, name: 'Fire Station' },
+    { id: 'int1', type: 'intersection', x: 50, y: 50, name: 'Main Intersection' },
+    { id: 'int2', type: 'intersection', x: 80, y: 50, name: 'East Intersection' },
+    { id: 'police', type: 'policestation', x: 80, y: 20, name: 'Police Station' }
+  ],
+  edges: [
+    { id: 'e1', from: 'hosp', to: 'int1', distance: 30, traffic: 0, name: 'West Road' },
+    { id: 'e2', from: 'resA', to: 'int1', distance: 30, traffic: 0, name: 'North Road' },
+    { id: 'e3', from: 'fire', to: 'int1', distance: 30, traffic: 0, name: 'South Road' },
+    { id: 'e4', from: 'int1', to: 'int2', distance: 30, traffic: 0, name: 'Main Street' },
+    { id: 'e5', from: 'int2', to: 'police', distance: 30, traffic: 0, name: 'East Road' }
+  ],
+  vehicles: [
+    {
+      id: 'amb1',
+      type: 'ambulance',
+      currentLocation: 'hosp', // Currently stationary at a node
+      status: 'Idle',
+      destination: null,
+      isAvailable: true
+    }
+  ]
 };
+
+export const level2CityState = {
+  // Level 2: "Busy Morning"
+  nodes: [
+    { id: 'hosp', type: 'hospital', x: 20, y: 50, name: 'City Hospital' },
+    { id: 'resA', type: 'house', x: 50, y: 20, name: 'Residential Area A' },
+    { id: 'fire', type: 'firestation', x: 50, y: 80, name: 'Fire Station' },
+    { id: 'int1', type: 'intersection', x: 50, y: 50, name: 'Main Intersection' },
+    { id: 'comm', type: 'house', x: 80, y: 80, name: 'Commercial Area' },
+    { id: 'mainRd', type: 'intersection', x: 80, y: 50, name: 'Main Road' }
+  ],
+  edges: [
+    { id: 'e1', from: 'hosp', to: 'int1', distance: 30, traffic: 0, name: 'West Road' },
+    { id: 'e2', from: 'resA', to: 'int1', distance: 30, traffic: 0, name: 'North Road' },
+    { id: 'e3', from: 'fire', to: 'int1', distance: 30, traffic: 0, name: 'South Road' },
+    { id: 'e4', from: 'int1', to: 'mainRd', distance: 30, traffic: 0, name: 'Main Street' },
+    { id: 'e5', from: 'mainRd', to: 'comm', distance: 30, traffic: 0, name: 'Commercial Road' }
+  ],
+  vehicles: [
+    {
+      id: 'amb1',
+      type: 'ambulance',
+      currentLocation: 'hosp',
+      status: 'Idle',
+      destination: null,
+      isAvailable: true
+    }
+  ]
+};
+
+export function getInitialGameState(level) {
+  return {
+    day: 1,
+    level: level,
+    unlockedLevels: [1, 2],
+    budget: 10000,
+    populationSafety: 100, // 0 to 100
+    trafficFlow: 100, // 0 to 100
+    energyLevel: 100, // 0 to 100
+    events: level === 2 ? level2Events : [],
+    cityState: level === 2 ? level2CityState : level1CityState
+  };
+}
+
+// Keep this for backwards compatibility if needed, but prefer getInitialGameState
+export const initialGameState = getInitialGameState(1);
 
 const possibleEvents = [
   {
@@ -69,6 +103,36 @@ const possibleEvents = [
         action: { type: 'dispatch_ambulance', vehicleId: 'amb1', destination: 'resA' }
       }
     ]
+  }
+];
+
+export const level2Events = [
+  {
+    id: 'lvl2_med_1',
+    type: 'medical',
+    severity: 'medium',
+    location: 'resA',
+    title: '🚑 MEDICAL EMERGENCY',
+    description: 'Medical emergency reported in Residential Area A. Severity: Medium.',
+    options: [{ text: 'ACKNOWLEDGE', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'none' } }]
+  },
+  {
+    id: 'lvl2_fire_1',
+    type: 'fire',
+    severity: 'medium',
+    location: 'comm',
+    title: '🔥 SMALL FIRE',
+    description: 'Small fire reported in the Commercial Area. Severity: Medium.',
+    options: [{ text: 'ACKNOWLEDGE', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'none' } }]
+  },
+  {
+    id: 'lvl2_acc_1',
+    type: 'accident',
+    severity: 'low',
+    location: 'mainRd',
+    title: '🚗 ROAD ACCIDENT',
+    description: 'Road accident on Main Road. Severity: Low.',
+    options: [{ text: 'ACKNOWLEDGE', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'none' } }]
   }
 ];
 

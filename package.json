@@ -1,0 +1,11 @@
+{
+  "name": "daa-game-root",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm --prefix smart-city run dev",
+    "build": "npm --prefix smart-city run build",
+    "lint": "npm --prefix smart-city run lint",
+    "preview": "npm --prefix smart-city run preview"
+  }
+}

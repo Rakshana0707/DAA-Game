@@ -5,7 +5,7 @@ import GameInterface from './components/GameInterface';
 function App() {
   const [currentScreen, setCurrentScreen] = useState('menu'); // 'menu' | 'playing'
   const [selectedLevel, setSelectedLevel] = useState(1);
-  const [unlockedLevels, setUnlockedLevels] = useState([1]); // In-memory session progression
+  const [unlockedLevels, setUnlockedLevels] = useState([1, 2]); // In-memory session progression
 
   const handleStartGame = (level = 1) => {
     if (unlockedLevels.includes(level)) {
