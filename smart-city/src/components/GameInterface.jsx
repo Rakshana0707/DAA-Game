@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import StatusBar from './StatusBar';
 import CityMap from './CityMap';
+import HelpGuideModal from './HelpGuideModal';
 import { initialGameState, getRandomEvent, applyEventResult } from '../engine/gameState';
 import { binarySearch } from '../engine/algorithms/binarySearch';
-import { LogOut, ArrowRight, AlertTriangle, Activity } from 'lucide-react';
+import { LogOut, ArrowRight, AlertTriangle, Activity, HelpCircle } from 'lucide-react';
 
 export default function GameInterface({ onQuit, onLevelComplete }) {
   const [gameState, setGameState] = useState(initialGameState);
   const [currentEvent, setCurrentEvent] = useState(null);
   const [levelComplete, setLevelComplete] = useState(null);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const isHelpOpenRef = useRef(isHelpOpen);
+  useEffect(() => {
+    isHelpOpenRef.current = isHelpOpen;
+  }, [isHelpOpen]);
   const [logs, setLogs] = useState(['Game started. Level 1: "First Day in the City".']);
   const [recommendedVehicles, setRecommendedVehicles] = useState(null);
 
@@ -43,6 +49,7 @@ export default function GameInterface({ onQuit, onLevelComplete }) {
   // Movement loop
   useEffect(() => {
     const interval = setInterval(() => {
+      if (isHelpOpenRef.current) return;
       setGameState(prev => {
         const hasMoving = prev.cityState.vehicles.some(v => v.status === 'Dispatched');
         if (!hasMoving) return prev;
@@ -96,6 +103,7 @@ export default function GameInterface({ onQuit, onLevelComplete }) {
     if (!currentEvent || currentEvent.missionStatus === 'SUCCESS' || currentEvent.missionStatus === 'FAILED') return;
 
     const timer = setInterval(() => {
+      if (isHelpOpenRef.current) return;
       setCurrentEvent(prev => {
         if (!prev) return prev;
         const newTime = prev.timeLeft - 1;
@@ -164,7 +172,7 @@ export default function GameInterface({ onQuit, onLevelComplete }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#f8fafc' }}>
-      <StatusBar state={gameState} />
+      <StatusBar state={gameState} onOpenHelp={() => setIsHelpOpen(true)} />
       
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* Left Sidebar - Logs & Controls */}
@@ -176,9 +184,35 @@ export default function GameInterface({ onQuit, onLevelComplete }) {
           flexDirection: 'column',
           padding: '1rem'
         }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '0.5rem' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.75rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '0.5rem' }}>
             Operations Center
           </h2>
+
+          <button
+            id="help-guide-btn"
+            className="btn"
+            style={{
+              width: '100%',
+              marginBottom: '0.75rem',
+              backgroundColor: '#0284c7',
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontWeight: 'bold',
+              padding: '0.65rem 1rem',
+              fontSize: '0.9rem',
+              boxShadow: '0 2px 4px rgba(2, 132, 199, 0.25)',
+              borderRadius: '0.5rem',
+              cursor: 'pointer'
+            }}
+            onClick={() => setIsHelpOpen(true)}
+            title="Open Level 1 Help & Player Guide"
+          >
+            <HelpCircle size={18} />
+            [? HELP / GUIDE]
+          </button>
           
           <button 
             className={`btn ${currentEvent ? 'btn-disabled' : ''}`}
@@ -385,6 +419,13 @@ export default function GameInterface({ onQuit, onLevelComplete }) {
           )}
         </div>
       </div>
+
+      {/* Reusable In-Game Help / Guide Modal */}
+      <HelpGuideModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+        level={gameState.level || 1}
+      />
     </div>
   );
 }
