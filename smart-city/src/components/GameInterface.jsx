@@ -9,6 +9,7 @@ export default function GameInterface({ onQuit }) {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [logs, setLogs] = useState(['Game started. Level 1: "First Day in the City".']);
 
+  // Movement loop
   useEffect(() => {
     const interval = setInterval(() => {
       setGameState(prev => {
@@ -36,6 +37,12 @@ export default function GameInterface({ onQuit }) {
         if (justArrived) {
           setTimeout(() => {
             setLogs(prevLogs => [...prevLogs, 'Ambulance arrived at the emergency.'].slice(-5));
+            setCurrentEvent(curr => {
+              if (curr && curr.timeLeft > 0 && curr.missionStatus !== 'FAILED') {
+                return { ...curr, missionStatus: 'SUCCESS' };
+              }
+              return curr;
+            });
           }, 0);
         }
 
@@ -49,6 +56,27 @@ export default function GameInterface({ onQuit }) {
     return () => clearInterval(interval);
   }, []);
 
+  // Timer loop
+  useEffect(() => {
+    if (!currentEvent || currentEvent.missionStatus === 'SUCCESS' || currentEvent.missionStatus === 'FAILED') return;
+
+    const timer = setInterval(() => {
+      setCurrentEvent(prev => {
+        if (!prev) return prev;
+        const newTime = prev.timeLeft - 1;
+        if (newTime <= 0) {
+          setTimeout(() => {
+            setLogs(prevLogs => [...prevLogs, 'Mission FAILED: Timer ran out!'].slice(-5));
+          }, 0);
+          return { ...prev, timeLeft: 0, missionStatus: 'FAILED' };
+        }
+        return { ...prev, timeLeft: newTime };
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [currentEvent?.missionStatus]);
+
   const addLog = (msg) => {
     setLogs(prev => [...prev, msg].slice(-5)); // Keep last 5 logs
   };
@@ -58,7 +86,7 @@ export default function GameInterface({ onQuit }) {
     if (newEvent) {
       addLog(`Day ${gameState.day} started. Monitoring city...`);
       setTimeout(() => {
-        setCurrentEvent(newEvent);
+        setCurrentEvent({ ...newEvent, timeLeft: 60, missionStatus: 'ACTIVE' });
         addLog(`Event: ${newEvent.title}`);
       }, 1500);
     } else {
@@ -85,7 +113,6 @@ export default function GameInterface({ onQuit }) {
         const newState = applyEventResult(gameState, option);
         setGameState(newState);
         addLog('Ambulance dispatched to Residential Area A.');
-        setCurrentEvent(null);
       }, 1500);
     } else {
       const newState = applyEventResult(gameState, option);
@@ -180,8 +207,18 @@ export default function GameInterface({ onQuit }) {
                 <p style={{ marginBottom: '1.5rem', color: '#475569', fontSize: '1.1rem' }}>
                   {currentEvent.description}
                 </p>
+
+                {/* Timer Display */}
+                <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#f1f5f9', borderRadius: '0.5rem', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: currentEvent.timeLeft <= 10 ? '#ef4444' : '#1e293b' }}>
+                    Response Time Remaining: {currentEvent.timeLeft} seconds
+                  </div>
+                  {currentEvent.missionStatus === 'SUCCESS' && <div style={{ color: '#22c55e', fontWeight: 'bold', marginTop: '0.5rem', fontSize: '1.5rem' }}>SUCCESS</div>}
+                  {currentEvent.missionStatus === 'FAILED' && <div style={{ color: '#ef4444', fontWeight: 'bold', marginTop: '0.5rem', fontSize: '1.5rem' }}>FAILED</div>}
+                </div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {currentEvent.options.map((opt, idx) => (
+                  {currentEvent.missionStatus !== 'SUCCESS' && currentEvent.missionStatus !== 'FAILED' && currentEvent.options.map((opt, idx) => (
                       <button
                         key={idx}
                         className="btn"
@@ -199,6 +236,12 @@ export default function GameInterface({ onQuit }) {
                     </button>
                   ))}
                 </div>
+
+                {(currentEvent.missionStatus === 'SUCCESS' || currentEvent.missionStatus === 'FAILED') && (
+                  <button className="btn" onClick={() => setCurrentEvent(null)} style={{ width: '100%', marginTop: '1rem', backgroundColor: '#64748b' }}>
+                    Close
+                  </button>
+                )}
               </div>
             </div>
           )}
