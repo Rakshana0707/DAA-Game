@@ -82,7 +82,7 @@ export function getInitialGameState(level) {
     populationSafety: 100, // 0 to 100
     trafficFlow: 100, // 0 to 100
     energyLevel: 100, // 0 to 100
-    events: level === 2 ? level2Events : [],
+    events: level === 2 ? level2Events : level1Events,
     cityState: level === 2 ? level2CityState : level1CityState
   };
 }
@@ -90,11 +90,11 @@ export function getInitialGameState(level) {
 // Keep this for backwards compatibility if needed, but prefer getInitialGameState
 export const initialGameState = getInitialGameState(1);
 
-const possibleEvents = [
+export const level1Events = [
   {
     id: 'lvl1_med_1',
     title: '🚨 MEDICAL EMERGENCY',
-    description: 'Medical emergency reported in Residential Area A.',
+    description: 'Medical emergency reported in Residential Area A.\n\nEstimated Severity: High\nResponse Target: 60 seconds',
     options: [
       { 
         text: 'DISPATCH AMBULANCE', 
@@ -136,10 +136,6 @@ export const level2Events = [
   }
 ];
 
-export function getRandomEvent() {
-  const index = Math.floor(Math.random() * possibleEvents.length);
-  return possibleEvents[index];
-}
 
 export function applyEventResult(state, option) {
   let newCityState = { ...state.cityState };

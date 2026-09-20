@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import StatusBar from './StatusBar';
 import CityMap from './CityMap';
 import HelpGuideModal from './HelpGuideModal';
-import { getInitialGameState, getRandomEvent, applyEventResult } from '../engine/gameState';
+import { getInitialGameState, applyEventResult } from '../engine/gameState';
 import { binarySearch } from '../engine/algorithms/binarySearch';
 import { LogOut, ArrowRight, AlertTriangle, Activity, HelpCircle } from 'lucide-react';
 
@@ -129,13 +129,18 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
   };
 
   const handleNextDay = () => {
-    const newEvent = getRandomEvent();
-    if (newEvent) {
+    // Deterministically take the next event from the queue
+    const nextEvent = gameState.events[0];
+    if (nextEvent) {
+      setGameState(prev => ({
+        ...prev,
+        events: prev.events.slice(1) // Remove it from the queue
+      }));
       addLog(`Day ${gameState.day} started. Monitoring city...`);
       setTimeout(() => {
-        setCurrentEvent({ ...newEvent, timeLeft: 60, missionStatus: 'ACTIVE' });
-        addLog(`Event: ${newEvent.title}`);
-      }, 1500);
+        setCurrentEvent({ ...nextEvent, timeLeft: 60, missionStatus: 'ACTIVE' });
+        addLog(`Event: ${nextEvent.title}`);
+      }, 2500); // Wait approx 2-3 seconds as requested
     } else {
       setGameState(prev => ({ ...prev, day: prev.day + 1 }));
       addLog(`Day ${gameState.day} started. All clear, no events.`);
@@ -304,7 +309,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                   <AlertTriangle size={32} />
                   <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{currentEvent.title}</h2>
                 </div>
-                <p style={{ marginBottom: '1.5rem', color: '#475569', fontSize: '1.1rem' }}>
+                <p style={{ marginBottom: '1.5rem', color: '#475569', fontSize: '1.1rem', whiteSpace: 'pre-line' }}>
                   {currentEvent.description}
                 </p>
 
