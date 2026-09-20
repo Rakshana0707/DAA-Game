@@ -76,6 +76,7 @@ The city becomes progressively more complex as the player advances through the l
 - [x] Binary Search integration
 - [x] Level 1 success/failure system
 - [x] Level 1 completion screen
+- [x] Level 1 player guide / help manual
 - [x] Level 2 unlocked
 - [ ] Level 2 — Busy Morning
 - [ ] Level 3 — Rush Hour
@@ -140,6 +141,7 @@ A simple medical emergency introduces the player to the basic game mechanics.
 - Small city map
 - Generous time limit
 - Binary Search introduced internally
+- [x] Level 1 player guide / help manual
 
 ---
 
