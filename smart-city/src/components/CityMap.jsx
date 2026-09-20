@@ -63,6 +63,30 @@ export default function CityMap({ cityState, onNodeClick }) {
             />
           );
         })}
+
+        {/* Draw Active Routes for Dispatched Vehicles */}
+        {cityState.vehicles.filter(v => v.path).map((vehicle, vIdx) => {
+          return vehicle.path.map((nodeId, idx) => {
+            if (idx >= vehicle.path.length - 1) return null;
+            const fromNode = cityState.nodes.find(n => n.id === nodeId);
+            const toNode = cityState.nodes.find(n => n.id === vehicle.path[idx + 1]);
+            if (!fromNode || !toNode) return null;
+            return (
+              <line
+                key={`route-${vIdx}-${idx}`}
+                x1={`${fromNode.x}%`}
+                y1={`${fromNode.y}%`}
+                x2={`${toNode.x}%`}
+                y2={`${toNode.y}%`}
+                stroke="#3b82f6"
+                strokeWidth="10"
+                strokeLinecap="round"
+                strokeDasharray="8, 8"
+                opacity="0.7"
+              />
+            );
+          });
+        })}
       </svg>
 
       {/* Draw Moving Vehicles */}
@@ -80,64 +104,69 @@ export default function CityMap({ cityState, onNodeClick }) {
             left: `${currentX}%`,
             top: `${currentY}%`,
             transform: 'translate(-50%, -50%)',
-            backgroundColor: 'white',
-            padding: '2px',
+            backgroundColor: '#fef08a', // Highlight color
+            padding: '4px', // Slightly larger
             borderRadius: '50%',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-            border: vehicle.type === 'ambulance' ? '2px solid #ef4444' : '2px solid #3b82f6',
-            zIndex: 20
+            boxShadow: '0 0 15px 5px rgba(234, 179, 8, 0.6)', // Glow effect
+            border: vehicle.type === 'ambulance' ? '3px solid #ef4444' : '3px solid #3b82f6',
+            zIndex: 30 // Ensure it's on top
           }}>
-            {vehicle.type === 'ambulance' && <Ambulance size={20} color="#ef4444" />}
+            {vehicle.type === 'ambulance' && <Ambulance size={24} color="#ef4444" />}
           </div>
         );
       })}
 
       {/* Draw Nodes (Buildings) */}
-      {cityState.nodes.map(node => (
-        <div
-          key={node.id}
-          onClick={() => onNodeClick(node)}
-          style={{
-            position: 'absolute',
-            left: `${node.x}%`,
-            top: `${node.y}%`,
-            transform: 'translate(-50%, -50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            cursor: 'pointer',
-            transition: 'transform 0.2s',
-          }}
-          className="city-node"
-        >
-          <div style={{
-            backgroundColor: 'white',
-            padding: '0.5rem',
-            borderRadius: '50%',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: node.type === 'intersection' ? 'none' : '2px solid #e5e7eb',
-            position: 'relative'
-          }}>
-            {getIcon(node.type)}
-            {cityState.vehicles.filter(v => v.currentLocation === node.id).map((vehicle, idx) => (
-              <div key={vehicle.id} style={{
-                position: 'absolute',
-                top: '-10px',
-                right: '-15px',
-                backgroundColor: 'white',
-                padding: '2px',
-                borderRadius: '50%',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                border: vehicle.type === 'ambulance' ? '1px solid #ef4444' : '1px solid #3b82f6',
-                transform: `translateX(${idx * 20}px)` // Offset slightly if multiple
-              }}>
-                {vehicle.type === 'ambulance' && <Ambulance size={16} color="#ef4444" />}
-              </div>
-            ))}
-          </div>
+      {cityState.nodes.map(node => {
+        // Check if this node is the destination of any dispatched vehicle
+        const isDestination = cityState.vehicles.some(v => v.status === 'Dispatched' && v.destination === node.id);
+
+        return (
+          <div
+            key={node.id}
+            onClick={() => onNodeClick(node)}
+            style={{
+              position: 'absolute',
+              left: `${node.x}%`,
+              top: `${node.y}%`,
+              transform: 'translate(-50%, -50%)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              cursor: 'pointer',
+              transition: 'transform 0.2s',
+            }}
+            className="city-node"
+          >
+            <div style={{
+              backgroundColor: isDestination ? '#fef08a' : 'white', // Highlight destination
+              padding: '0.5rem',
+              borderRadius: '50%',
+              boxShadow: isDestination ? '0 0 20px 8px rgba(234, 179, 8, 0.5)' : '0 4px 6px rgba(0,0,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: node.type === 'intersection' ? 'none' : (isDestination ? '3px solid #eab308' : '2px solid #e5e7eb'),
+              position: 'relative',
+              zIndex: isDestination ? 15 : 10
+            }}>
+              {getIcon(node.type)}
+              {cityState.vehicles.filter(v => v.currentLocation === node.id).map((vehicle, idx) => (
+                <div key={vehicle.id} style={{
+                  position: 'absolute',
+                  top: '-10px',
+                  right: '-15px',
+                  backgroundColor: 'white',
+                  padding: '2px',
+                  borderRadius: '50%',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  border: vehicle.type === 'ambulance' ? '1px solid #ef4444' : '1px solid #3b82f6',
+                  transform: `translateX(${idx * 20}px)` // Offset slightly if multiple
+                }}>
+                  {vehicle.type === 'ambulance' && <Ambulance size={16} color="#ef4444" />}
+                </div>
+              ))}
+            </div>
           {getLabel(node.type) && (
             <span style={{
               marginTop: '0.25rem',
@@ -152,7 +181,8 @@ export default function CityMap({ cityState, onNodeClick }) {
             </span>
           )}
         </div>
-      ))}
+      );
+      })}
       
       {/* Add a little style tag for hover effects since we are not using full tailwind */}
       <style>{`
