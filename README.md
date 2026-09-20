@@ -79,6 +79,7 @@ The city becomes progressively more complex as the player advances through the l
 - [x] Level 1 player guide / help manual
 - [x] Level 2 unlocked
 - [ ] Level 2 — Busy Morning
+- [x] Level 2 player guide / help manual
 - [ ] Level 3 — Rush Hour
 - [ ] Level 4 — Emergency Route
 - [ ] Level 5 — City Expansion
@@ -158,6 +159,7 @@ Algorithms introduced:
 
 - Maximum and Minimum
 - Merge Sort
+- [x] Level 2 player guide / help manual
 
 ---
 
