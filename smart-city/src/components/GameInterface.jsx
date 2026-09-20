@@ -107,9 +107,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                        cityState: { ...gs.cityState, vehicles: updatedVehicles }
                      };
                   });
-                  if (onLevelComplete) {
-                    onLevelComplete(level);
-                  }
+                  // Do not trigger onLevelComplete here. The level is only completed when they finish the report.
                   return { 
                     ...curr, 
                     missionStatus: 'SUCCESS',
@@ -462,11 +460,15 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                   <button className="btn" onClick={() => {
                     if (currentEvent.missionStatus === 'SUCCESS') {
                       setLevelComplete({
+                        phase: level === 1 ? 'report' : 'complete',
                         citizensHelped: 1,
                         responseTime: 60 - currentEvent.timeLeft,
                         citySafety: gameState.populationSafety,
                         budgetRemaining: gameState.budget
                       });
+                      if (level !== 1 && onLevelComplete) {
+                        onLevelComplete(level);
+                      }
                     }
                     setCurrentEvent(null);
                   }} style={{ width: '100%', marginTop: '1rem', backgroundColor: '#64748b' }}>
@@ -497,7 +499,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                 boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
                 textAlign: 'center'
               }}>
-                {level === 1 ? (
+                {levelComplete.phase === 'report' ? (
                   <>
                     <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>DAY 1 REPORT</h1>
                     <div style={{ borderTop: '2px solid #e2e8f0', marginBottom: '1.5rem' }}></div>
@@ -547,7 +549,12 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
 
                     <div style={{ borderTop: '2px solid #e2e8f0', marginBottom: '1.5rem' }}></div>
                     <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                      <button className="btn" style={{ backgroundColor: '#3b82f6', flex: 1, fontSize: '1.25rem', padding: '1rem' }} onClick={onQuit}>
+                      <button className="btn" style={{ backgroundColor: '#3b82f6', flex: 1, fontSize: '1.25rem', padding: '1rem' }} onClick={() => {
+                        if (onLevelComplete) {
+                          onLevelComplete(level);
+                        }
+                        setLevelComplete(prev => ({ ...prev, phase: 'complete' }));
+                      }}>
                         CONTINUE
                       </button>
                     </div>
