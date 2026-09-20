@@ -17,7 +17,7 @@ function App() {
   const handleLevelComplete = (completedLevelId) => {
     const nextLevel = completedLevelId + 1;
     setUnlockedLevels((prev) => {
-      if (!prev.includes(nextLevel)) {
+      if (nextLevel <= 10 && !prev.includes(nextLevel)) {
         return [...prev, nextLevel];
       }
       return prev;

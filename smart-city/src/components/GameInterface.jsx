@@ -82,7 +82,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
               if (curr && curr.timeLeft > 0 && curr.missionStatus !== 'FAILED') {
                 setGameState(gs => ({ ...gs, populationSafety: Math.min(100, gs.populationSafety + 10) }));
                 if (onLevelComplete) {
-                  onLevelComplete(1);
+                  onLevelComplete(level);
                 }
                 return { ...curr, missionStatus: 'SUCCESS' };
               }
@@ -376,8 +376,8 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                 boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
                 textAlign: 'center'
               }}>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#10b981', marginBottom: '0.5rem' }}>LEVEL 1 COMPLETE</h1>
-                <h2 style={{ fontSize: '1.25rem', color: '#64748b', marginBottom: '2rem' }}>First Day in the City</h2>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#10b981', marginBottom: '0.5rem' }}>LEVEL {level} COMPLETE</h1>
+                <h2 style={{ fontSize: '1.25rem', color: '#64748b', marginBottom: '2rem' }}>{level === 2 ? 'Busy Morning' : 'First Day in the City'}</h2>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left', marginBottom: '2rem' }}>
                   <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}>
