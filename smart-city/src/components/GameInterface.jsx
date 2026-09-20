@@ -66,9 +66,10 @@ export default function GameInterface({ onQuit }) {
 
         if (justArrived) {
           setTimeout(() => {
-            setLogs(prevLogs => [...prevLogs, 'Ambulance arrived at the emergency.'].slice(-5));
+            setLogs(prevLogs => [...prevLogs, 'Ambulance arrived at the emergency.', 'Emergency resolved! City safety increased.'].slice(-5));
             setCurrentEvent(curr => {
               if (curr && curr.timeLeft > 0 && curr.missionStatus !== 'FAILED') {
+                setGameState(gs => ({ ...gs, populationSafety: Math.min(100, gs.populationSafety + 10) }));
                 return { ...curr, missionStatus: 'SUCCESS' };
               }
               return curr;
@@ -96,7 +97,8 @@ export default function GameInterface({ onQuit }) {
         const newTime = prev.timeLeft - 1;
         if (newTime <= 0) {
           setTimeout(() => {
-            setLogs(prevLogs => [...prevLogs, 'Mission FAILED: Timer ran out!'].slice(-5));
+            setLogs(prevLogs => [...prevLogs, 'Mission FAILED: Timer ran out!', 'Emergency unresolved. City safety decreased.'].slice(-5));
+            setGameState(gs => ({ ...gs, populationSafety: Math.max(0, gs.populationSafety - 20) }));
           }, 0);
           return { ...prev, timeLeft: 0, missionStatus: 'FAILED' };
         }
@@ -209,7 +211,19 @@ export default function GameInterface({ onQuit }) {
 
           <button 
             className="btn"
-            style={{ marginTop: '1rem', backgroundColor: '#ef4444', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+            style={{ marginTop: '1rem', backgroundColor: '#3b82f6', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+            onClick={() => {
+              setGameState(initialGameState);
+              setCurrentEvent(null);
+              setLogs(['Game restarted. Level 1: "First Day in the City".']);
+            }}
+          >
+            Restart Level
+          </button>
+
+          <button 
+            className="btn"
+            style={{ marginTop: '0.5rem', backgroundColor: '#ef4444', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
             onClick={onQuit}
           >
             <LogOut size={18} /> Exit to Menu
