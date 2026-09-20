@@ -187,20 +187,21 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
     } else if (option.action && option.action.type === 'continue_route') {
       setCurrentEvent(prev => ({
         ...prev,
-        title: '🚑 AMBULANCE',
-        description: 'Status: Responding (Delayed in Traffic)\nDestination: Residential Area A',
+        title: 'ROUTE UPDATE',
+        description: 'Continuing through traffic.\nEstimated additional response time: +8 sec\n\nStatus: Responding\nDestination: Residential Area A',
         options: [],
-        timeLeft: Math.max(1, prev.timeLeft - 15) // Slightly increases response time
+        timeLeft: Math.max(1, prev.timeLeft - 8)
       }));
       const newState = applyEventResult(gameState, option);
       setGameState(newState);
-      addLog('Ambulance continuing through traffic. Response time delayed.');
+      addLog('Ambulance continuing through traffic. (+8s delay)');
     } else if (option.action && option.action.type === 'reroute_ambulance') {
       setCurrentEvent(prev => ({
         ...prev,
-        title: '🚑 AMBULANCE',
-        description: 'Status: Rerouting\nDestination: Residential Area A',
-        options: []
+        title: 'ROUTE UPDATE',
+        description: 'Alternative route selected.\nEstimated additional response time: +3 sec\n\nStatus: Rerouting\nDestination: Residential Area A',
+        options: [],
+        timeLeft: Math.max(1, prev.timeLeft - 3)
       }));
       setGameState(prev => ({
         ...prev,
@@ -213,7 +214,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
           )
         }
       }));
-      addLog('Ambulance rerouted to avoid traffic.');
+      addLog('Ambulance rerouted to avoid traffic. (+3s delay)');
     } else {
       const newState = applyEventResult(gameState, option);
       setGameState(newState);
