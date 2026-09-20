@@ -60,7 +60,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
         let justArrived = false;
         const newVehicles = prev.cityState.vehicles.map(v => {
           if (v.status === 'Dispatched' && v.path) {
-            let p = v.progress + 0.05; // 1 second per edge (50ms * 20 = 1000ms)
+            let p = v.progress + 0.005; // 10 seconds per edge (50ms * 200 = 10000ms)
             let idx = v.pathIndex;
             if (p >= 1) {
               p = 0;
@@ -155,21 +155,65 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
     
     // Show confirmation on the button
     if (option.text.includes('DISPATCH AMBULANCE')) {
+      const isAmb1 = option.text.includes('1');
       setCurrentEvent(prev => ({
         ...prev,
-        options: prev.options.map(opt => ({
-          ...opt,
-          text: opt.text === option.text ? 'Ambulance dispatch requested...' : opt.text,
-          disabled: true
-        }))
+        title: `🚑 AMBULANCE ${isAmb1 ? '1' : '2'}`,
+        description: `Status: Responding\nDestination: Residential Area A`,
+        options: []
       }));
       addLog(`${option.text} requested.`);
       
       setTimeout(() => {
         const newState = applyEventResult(gameState, option);
         setGameState(newState);
-        addLog('Ambulance dispatched to Residential Area A.');
+        addLog(`Ambulance ${isAmb1 ? '1' : '2'} dispatched to Residential Area A.`);
+
+        if (level === 1) {
+          setTimeout(() => {
+            setCurrentEvent(prev => prev ? {
+              ...prev,
+              title: '⚠️ CITY UPDATE',
+              description: 'Traffic congestion has developed near the ambulance route.\n\nTraffic condition:\nNORMAL → BUSY',
+              options: [
+                { text: 'CONTINUE ROUTE', cost: 0, effect: { safety: 0, traffic: -10 }, action: { type: 'continue_route' } },
+                { text: 'REROUTE', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'reroute_ambulance', vehicleId: option.action.vehicleId } }
+              ]
+            } : null);
+            addLog('City Update: Traffic congestion detected.');
+          }, 6000);
+        }
       }, 1500);
+    } else if (option.action && option.action.type === 'continue_route') {
+      setCurrentEvent(prev => ({
+        ...prev,
+        title: '🚑 AMBULANCE',
+        description: 'Status: Responding (Delayed in Traffic)\nDestination: Residential Area A',
+        options: [],
+        timeLeft: Math.max(1, prev.timeLeft - 15) // Slightly increases response time
+      }));
+      const newState = applyEventResult(gameState, option);
+      setGameState(newState);
+      addLog('Ambulance continuing through traffic. Response time delayed.');
+    } else if (option.action && option.action.type === 'reroute_ambulance') {
+      setCurrentEvent(prev => ({
+        ...prev,
+        title: '🚑 AMBULANCE',
+        description: 'Status: Rerouting\nDestination: Residential Area A',
+        options: []
+      }));
+      setGameState(prev => ({
+        ...prev,
+        cityState: {
+          ...prev.cityState,
+          vehicles: prev.cityState.vehicles.map(v => 
+            v.id === option.action.vehicleId 
+              ? { ...v, path: ['hosp', 'fire', 'resA'], pathIndex: 0, progress: 0 } 
+              : v
+          )
+        }
+      }));
+      addLog('Ambulance rerouted to avoid traffic.');
     } else {
       const newState = applyEventResult(gameState, option);
       setGameState(newState);
