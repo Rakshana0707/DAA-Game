@@ -66,20 +66,8 @@ The city becomes progressively more complex as the player advances through the l
 
 - [x] Base game structure
 - [x] Level management
-- [x] Level 1 city map
-- [x] Ambulance system
-- [x] Medical emergency
-- [x] Emergency dispatch
-- [x] Ambulance movement
-- [x] Emergency response timer
-- [x] Binary Search implementation
-- [x] Binary Search integration
-- [x] Level 1 success/failure system
-- [x] Level 1 completion screen
-- [x] Level 1 player guide / help manual
-- [x] Level 2 unlocked
-- [ ] Level 2 — Busy Morning
-- [x] Level 2 player guide / help manual
+- [x] Level 1 — First Day in the City
+- [x] Level 2 — Busy Morning
 - [ ] Level 3 — Rush Hour
 - [ ] Level 4 — Emergency Route
 - [ ] Level 5 — City Expansion
@@ -133,16 +121,38 @@ The algorithms are implemented as separate modules and are called by the game en
 
 The game is designed so that difficulty increases **between levels**, rather than overwhelming the player inside a single level.
 
+Completing a level successfully unlocks the next level. Starting, viewing, restarting, or partially completing a level does not unlock the next level.
+
 ### Level 1 — First Day in the City 🟢
 
-A simple medical emergency introduces the player to the basic game mechanics.
+Status:
+COMPLETED
 
-- One emergency
-- One ambulance
-- Small city map
-- Generous time limit
-- Binary Search introduced internally
-- [x] Level 1 player guide / help manual
+Gameplay features completed:
+
+- [x] Level 1 Help / Guide
+- [x] Day 1 city briefing
+- [x] Medical emergency event
+- [x] Ambulance selection
+- [x] Ambulance response
+- [x] Route visualization
+- [x] Traffic complication
+- [x] Player route decision
+- [x] Hospital management decision
+- [x] City Safety consequences
+- [x] Emergency resolution
+- [x] Day 1 performance report
+- [x] Level completion system
+- [x] Sequential Level 2 unlock
+
+"The player begins their first day as the City Operations Manager. After observing the city, the player responds to a medical emergency by selecting an available ambulance, monitoring its response, handling a traffic complication, and preparing the hospital for the incoming patient. The player's decisions affect city conditions and the final Day 1 report."
+
+DAA USED:
+
+Binary Search:
+Used internally for emergency resource estimation.
+
+*Note: The player does not manually solve Binary Search.*
 
 ---
 
