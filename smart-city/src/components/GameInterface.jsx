@@ -77,17 +77,49 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
 
         if (justArrived) {
           setTimeout(() => {
-            setLogs(prevLogs => [...prevLogs, 'Ambulance arrived at the emergency.', 'Emergency resolved! City safety increased.'].slice(-5));
+            setLogs(prevLogs => [...prevLogs, 'Ambulance arrived at the emergency.'].slice(-5));
             setCurrentEvent(curr => {
               if (curr && curr.timeLeft > 0 && curr.missionStatus !== 'FAILED') {
-                setGameState(gs => ({ ...gs, populationSafety: Math.min(100, gs.populationSafety + 10) }));
-                if (onLevelComplete) {
-                  onLevelComplete(level);
-                }
-                return { ...curr, missionStatus: 'SUCCESS' };
+                return { 
+                  ...curr, 
+                  missionStatus: 'TRANSPORTING',
+                  title: '🚑 EMERGENCY RESPONSE',
+                  description: 'Ambulance has arrived.\n\nPatient secured.\n\nTransporting patient to City Hospital...',
+                  options: []
+                };
               }
               return curr;
             });
+
+            // After a short delay, complete the transport and show success
+            setTimeout(() => {
+              setLogs(prevLogs => [...prevLogs, 'Patient arrived at hospital. Emergency resolved!'].slice(-5));
+              setCurrentEvent(curr => {
+                if (curr && curr.missionStatus === 'TRANSPORTING') {
+                  setGameState(gs => {
+                     // Free up the arrived ambulance
+                     const updatedVehicles = gs.cityState.vehicles.map(v => 
+                       v.status === 'Arrived' ? { ...v, status: 'Idle', currentLocation: 'hosp', isAvailable: true } : v
+                     );
+                     return { 
+                       ...gs, 
+                       populationSafety: Math.min(100, gs.populationSafety + 10),
+                       cityState: { ...gs.cityState, vehicles: updatedVehicles }
+                     };
+                  });
+                  if (onLevelComplete) {
+                    onLevelComplete(level);
+                  }
+                  return { 
+                    ...curr, 
+                    missionStatus: 'SUCCESS',
+                    title: '🏥 PATIENT ARRIVED',
+                    description: 'Emergency successfully handled.\n\n✓ Citizen helped\n✓ Emergency resolved\n✓ City operations restored',
+                  };
+                }
+                return curr;
+              });
+            }, 4000);
           }, 0);
         }
 
@@ -103,7 +135,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
 
   // Timer loop
   useEffect(() => {
-    if (!currentEvent || currentEvent.missionStatus === 'SUCCESS' || currentEvent.missionStatus === 'FAILED') return;
+    if (!currentEvent || currentEvent.missionStatus === 'SUCCESS' || currentEvent.missionStatus === 'FAILED' || currentEvent.missionStatus === 'TRANSPORTING') return;
 
     const timer = setInterval(() => {
       if (isHelpOpenRef.current) return;
