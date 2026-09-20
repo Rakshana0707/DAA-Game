@@ -40,6 +40,14 @@ export const level1CityState = {
       status: 'Idle',
       destination: null,
       isAvailable: true
+    },
+    {
+      id: 'amb2',
+      type: 'ambulance',
+      currentLocation: 'hosp',
+      status: 'Idle',
+      destination: null,
+      isAvailable: true
     }
   ]
 };
@@ -94,13 +102,19 @@ export const level1Events = [
   {
     id: 'lvl1_med_1',
     title: '🚨 MEDICAL EMERGENCY',
-    description: 'Medical emergency reported in Residential Area A.\n\nEstimated Severity: High\nResponse Target: 60 seconds',
+    description: 'Residential Area A\n\nSeverity: HIGH\nResponse Target: 60 seconds\n\nAVAILABLE AMBULANCES\n\n🚑 Ambulance 1\nStatus: Available\n\n🚑 Ambulance 2\nStatus: Available',
     options: [
       { 
-        text: 'DISPATCH AMBULANCE', 
+        text: 'DISPATCH AMBULANCE 1', 
         cost: 0, 
         effect: { safety: 0, traffic: 0 },
         action: { type: 'dispatch_ambulance', vehicleId: 'amb1', destination: 'resA' }
+      },
+      { 
+        text: 'DISPATCH AMBULANCE 2', 
+        cost: 0, 
+        effect: { safety: 0, traffic: 0 },
+        action: { type: 'dispatch_ambulance', vehicleId: 'amb2', destination: 'resA' }
       }
     ]
   }

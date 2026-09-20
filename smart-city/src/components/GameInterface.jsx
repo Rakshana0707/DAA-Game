@@ -154,12 +154,16 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
     }
     
     // Show confirmation on the button
-    if (option.text === 'DISPATCH AMBULANCE') {
+    if (option.text.includes('DISPATCH AMBULANCE')) {
       setCurrentEvent(prev => ({
         ...prev,
-        options: [{ ...option, text: 'Ambulance dispatch requested...' }]
+        options: prev.options.map(opt => ({
+          ...opt,
+          text: opt.text === option.text ? 'Ambulance dispatch requested...' : opt.text,
+          disabled: true
+        }))
       }));
-      addLog('Ambulance dispatch requested.');
+      addLog(`${option.text} requested.`);
       
       setTimeout(() => {
         const newState = applyEventResult(gameState, option);
@@ -330,11 +334,11 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                         style={{ 
                           display: 'flex', 
                           justifyContent: 'space-between', 
-                          backgroundColor: gameState.budget >= opt.cost && opt.text !== 'Ambulance dispatch requested...' ? '#3b82f6' : '#9ca3af',
+                          backgroundColor: gameState.budget >= opt.cost && !opt.disabled ? '#3b82f6' : '#9ca3af',
                           textAlign: 'left'
                         }}
                         onClick={() => handleOptionSelect(opt)}
-                        disabled={gameState.budget < opt.cost || opt.text === 'Ambulance dispatch requested...'}
+                        disabled={gameState.budget < opt.cost || opt.disabled}
                       >
                       <span>{opt.text}</span>
                       {opt.cost > 0 && <span style={{ fontFamily: 'monospace' }}>-${opt.cost}</span>}
