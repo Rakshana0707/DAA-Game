@@ -8,11 +8,9 @@ function App() {
   const [unlockedLevels, setUnlockedLevels] = useState([1]); // In-memory session progression
 
   const handleStartGame = (level = 1) => {
-    if (level === 1) {
-      setSelectedLevel(1);
+    if (unlockedLevels.includes(level)) {
+      setSelectedLevel(level);
       setCurrentScreen('playing');
-    } else if (level === 2 && unlockedLevels.includes(2)) {
-      alert("Level 2 ('Busy Morning') is unlocked! Gameplay is coming soon.");
     }
   };
 

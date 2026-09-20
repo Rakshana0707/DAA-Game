@@ -6,8 +6,11 @@ import { initialGameState, getRandomEvent, applyEventResult } from '../engine/ga
 import { binarySearch } from '../engine/algorithms/binarySearch';
 import { LogOut, ArrowRight, AlertTriangle, Activity, HelpCircle } from 'lucide-react';
 
-export default function GameInterface({ onQuit, onLevelComplete }) {
-  const [gameState, setGameState] = useState(initialGameState);
+export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
+  const [gameState, setGameState] = useState({
+    ...initialGameState,
+    level: level
+  });
   const [currentEvent, setCurrentEvent] = useState(null);
   const [levelComplete, setLevelComplete] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -15,7 +18,9 @@ export default function GameInterface({ onQuit, onLevelComplete }) {
   useEffect(() => {
     isHelpOpenRef.current = isHelpOpen;
   }, [isHelpOpen]);
-  const [logs, setLogs] = useState(['Game started. Level 1: "First Day in the City".']);
+  const [logs, setLogs] = useState([
+    level === 2 ? 'Game started. Level 2: "Busy Morning".' : 'Game started. Level 1: "First Day in the City".'
+  ]);
   const [recommendedVehicles, setRecommendedVehicles] = useState(null);
 
   // Run Resource Analysis on mount
@@ -251,9 +256,11 @@ export default function GameInterface({ onQuit, onLevelComplete }) {
             className="btn"
             style={{ marginTop: '1rem', backgroundColor: '#3b82f6', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
             onClick={() => {
-              setGameState(initialGameState);
+              setGameState({ ...initialGameState, level: level });
               setCurrentEvent(null);
-              setLogs(['Game restarted. Level 1: "First Day in the City".']);
+              setLogs([
+                level === 2 ? 'Game restarted. Level 2: "Busy Morning".' : 'Game restarted. Level 1: "First Day in the City".'
+              ]);
             }}
           >
             Restart Level
@@ -424,7 +431,7 @@ export default function GameInterface({ onQuit, onLevelComplete }) {
       <HelpGuideModal
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
-        level={gameState.level || 1}
+        level={gameState.level || level || 1}
       />
     </div>
   );

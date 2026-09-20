@@ -190,6 +190,66 @@ export default function HelpGuideModal({ isOpen, onClose, level = 1 }) {
                   </div>
                 );
 
+              case 'incidents':
+                return (
+                  <div
+                    key={section.id}
+                    style={{
+                      backgroundColor: '#1e293b',
+                      border: '1px solid #334155',
+                      borderRadius: '0.75rem',
+                      padding: '1rem 1.25rem'
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        color: '#f43f5e',
+                        fontWeight: 700,
+                        fontSize: '1.05rem',
+                        marginBottom: '0.5rem'
+                      }}
+                    >
+                      <AlertTriangle size={18} />
+                      <span>{section.title}</span>
+                    </div>
+                    {section.intro && (
+                      <div style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '0.75rem' }}>
+                        {section.intro}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                      {section.items.map((inc, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            backgroundColor: '#0f172a',
+                            border: '1px solid #334155',
+                            borderRadius: '0.5rem',
+                            padding: '0.65rem 1rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.75rem'
+                          }}
+                        >
+                          <span style={{ fontSize: '1.35rem' }}>{inc.icon}</span>
+                          <div>
+                            <div style={{ fontWeight: 700, color: '#f1f5f9' }}>{inc.name}</div>
+                            <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>{inc.requirement}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {section.note && (
+                      <div style={{ fontSize: '0.875rem', color: '#cbd5e1', fontStyle: 'italic', borderTop: '1px solid #334155', paddingTop: '0.5rem' }}>
+                        {section.note}
+                      </div>
+                    )}
+                  </div>
+                );
+
               case 'steps':
                 return (
                   <div

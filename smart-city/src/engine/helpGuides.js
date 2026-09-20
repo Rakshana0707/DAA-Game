@@ -105,6 +105,133 @@ export const LEVEL_GUIDES = {
         content: 'Successfully resolve the emergency and keep the city safe.'
       }
     ]
+  },
+  2: {
+    levelNumber: 2,
+    title: 'Level 2 — Busy Morning',
+    subtitle: 'Multi-Incident Response & Resource Coordination',
+    sections: [
+      {
+        id: 'situation',
+        number: 1,
+        title: 'Section 1 — Situation',
+        type: 'text',
+        content:
+          'The city is experiencing a busy morning. Multiple incidents may require attention, and emergency resources are limited.'
+      },
+      {
+        id: 'objective',
+        number: 2,
+        title: 'Section 2 — Objective',
+        type: 'text',
+        content:
+          'Respond to the incidents that appear throughout the level and keep the city safe.'
+      },
+      {
+        id: 'incidents',
+        number: 3,
+        title: 'Section 3 — Incidents',
+        type: 'incidents',
+        intro: 'Types of incidents you may encounter:',
+        items: [
+          {
+            icon: '🚑',
+            name: 'Medical Emergency',
+            requirement: 'Requires an ambulance.'
+          },
+          {
+            icon: '🔥',
+            name: 'Fire',
+            requirement: 'Requires a fire truck.'
+          },
+          {
+            icon: '🚗',
+            name: 'Road Accident',
+            requirement: 'Requires an ambulance.'
+          }
+        ],
+        note: 'Incidents can have different levels of urgency and severity.'
+      },
+      {
+        id: 'what-to-do',
+        number: 4,
+        title: 'Section 4 — What You Need To Do',
+        type: 'steps',
+        intro: 'Operational workflow for managing multiple incidents:',
+        items: [
+          'Watch for new incident alerts.',
+          'Read the incident information.',
+          'Check the available emergency vehicles.',
+          'Decide how to respond.',
+          'Dispatch the appropriate vehicle.',
+          'Monitor the result.',
+          'Continue responding as new incidents appear.'
+        ]
+      },
+      {
+        id: 'important-info',
+        number: 5,
+        title: 'Section 5 — Important Information',
+        type: 'stats',
+        intro: 'Key operational metrics to observe:',
+        items: [
+          {
+            name: 'Severity',
+            desc: 'Indicates how serious an incident is.'
+          },
+          {
+            name: 'Urgency',
+            desc: 'Indicates how quickly an incident should receive attention.'
+          },
+          {
+            name: 'City Safety',
+            desc: 'Represents the overall condition of the city.'
+          },
+          {
+            name: 'Vehicle status',
+            desc: 'Shows whether a vehicle is available or busy.'
+          }
+        ]
+      },
+      {
+        id: 'tips',
+        number: 6,
+        title: 'Section 6 — Tips',
+        type: 'bullet-list',
+        items: [
+          'Keep an eye on all active incidents.',
+          'Do not waste emergency vehicles.',
+          'Pay attention to severity and urgency.',
+          'Respond before incidents become more serious.',
+          'Monitor City Safety.',
+          'Plan your actions instead of responding randomly.'
+        ]
+      },
+      {
+        id: 'daa-engine',
+        number: 7,
+        title: 'Section 7 — DAA Engine',
+        badge: 'Behind the Scenes',
+        type: 'daa',
+        content:
+          'The game uses DAA algorithms internally to analyze incidents and organize the city\'s emergency response.\n\nMaximum and Minimum is used to identify the most and least severe active incidents.\n\nMerge Sort is used internally to organize the emergency response queue.\n\nYou do not need to manually solve these algorithms.'
+      },
+      {
+        id: 'failure',
+        number: 8,
+        title: 'Section 8 — Failure',
+        type: 'alert',
+        content:
+          'The city can fail the level if too many incidents remain unresolved or City Safety falls below the required level.'
+      },
+      {
+        id: 'goal',
+        number: 9,
+        title: 'Section 9 — Goal',
+        type: 'goal',
+        content: 'Resolve the morning\'s emergencies while keeping City Safety above the required level.'
+      }
+    ]
   }
 };
 
