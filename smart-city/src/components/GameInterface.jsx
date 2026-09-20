@@ -13,9 +13,23 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
   const [levelComplete, setLevelComplete] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const isHelpOpenRef = useRef(isHelpOpen);
+  const timeoutsRef = useRef([]);
+
   useEffect(() => {
     isHelpOpenRef.current = isHelpOpen;
   }, [isHelpOpen]);
+
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  const safeSetTimeout = (callback, delay) => {
+    const id = setTimeout(callback, delay);
+    timeoutsRef.current.push(id);
+    return id;
+  };
   const [logs, setLogs] = useState([
     level === 2 ? 'Game started. Level 2: "Busy Morning".' : 'Game started. Level 1: "First Day in the City".'
   ]);
@@ -76,7 +90,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
         });
 
         if (justArrived) {
-          setTimeout(() => {
+          safeSetTimeout(() => {
             setLogs(prevLogs => [...prevLogs, 'Ambulance arrived at the emergency.'].slice(-5));
             setCurrentEvent(curr => {
               if (curr && curr.timeLeft > 0 && curr.missionStatus !== 'FAILED') {
@@ -92,7 +106,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
             });
 
             // After a short delay, complete the transport and show success
-            setTimeout(() => {
+            safeSetTimeout(() => {
               setLogs(prevLogs => [...prevLogs, 'Patient arrived at hospital. Emergency resolved!'].slice(-5));
               setCurrentEvent(curr => {
                 if (curr && curr.missionStatus === 'TRANSPORTING') {
@@ -141,7 +155,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
         if (!prev) return prev;
         const newTime = prev.timeLeft - 1;
         if (newTime <= 0) {
-          setTimeout(() => {
+          safeSetTimeout(() => {
             setLogs(prevLogs => [...prevLogs, 'Mission FAILED: Timer ran out!', 'Emergency unresolved. City safety decreased.'].slice(-5));
             setGameState(gs => ({ ...gs, populationSafety: Math.max(0, gs.populationSafety - 20) }));
           }, 0);
@@ -167,7 +181,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
         events: prev.events.slice(1) // Remove it from the queue
       }));
       addLog(`Day ${gameState.day} started. Monitoring city...`);
-      setTimeout(() => {
+      safeSetTimeout(() => {
         setCurrentEvent({ ...nextEvent, timeLeft: 60, missionStatus: 'ACTIVE' });
         addLog(`Event: ${nextEvent.title}`);
       }, 2500); // Wait approx 2-3 seconds as requested
@@ -194,14 +208,14 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
       }));
       addLog(`${option.text} requested.`);
       
-      setTimeout(() => {
+      safeSetTimeout(() => {
         const newState = applyEventResult(gameState, option);
         setGameState(newState);
         addLog(`Ambulance ${isAmb1 ? '1' : '2'} dispatched to Residential Area A.`);
 
         if (level === 1) {
           // Traffic complication
-          setTimeout(() => {
+          safeSetTimeout(() => {
             setCurrentEvent(prev => (prev && prev.missionStatus !== 'SUCCESS' && prev.missionStatus !== 'FAILED') ? {
               ...prev,
               title: '⚠️ CITY UPDATE',
@@ -215,7 +229,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
           }, 6000);
 
           // Hospital complication
-          setTimeout(() => {
+          safeSetTimeout(() => {
             setCurrentEvent(prev => (prev && prev.missionStatus !== 'SUCCESS' && prev.missionStatus !== 'FAILED') ? {
               ...prev,
               title: '🏥 HOSPITAL UPDATE',
@@ -373,7 +387,9 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
             className="btn"
             style={{ marginTop: '1rem', backgroundColor: '#3b82f6', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
             onClick={() => {
-              setGameState(getInitialGameState(level));
+                    timeoutsRef.current.forEach(clearTimeout);
+                    timeoutsRef.current = [];
+                    setGameState(getInitialGameState(level));
               setCurrentEvent(null);
               setLogs([
                 level === 2 ? 'Game restarted. Level 2: "Busy Morning".' : 'Game restarted. Level 1: "First Day in the City".'
@@ -591,6 +607,8 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
 
                     <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                       <button className="btn" style={{ backgroundColor: '#3b82f6', flex: 1 }} onClick={() => {
+                        timeoutsRef.current.forEach(clearTimeout);
+                        timeoutsRef.current = [];
                         setGameState(getInitialGameState(level));
                         setLevelComplete(null);
                         setLogs([level === 2 ? 'Game restarted. Level 2: "Busy Morning".' : 'Game restarted. Level 1: "First Day in the City".']);
