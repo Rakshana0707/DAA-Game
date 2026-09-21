@@ -55,19 +55,31 @@ export const level1CityState = {
 export const level2CityState = {
   // Level 2: "Busy Morning"
   nodes: [
-    { id: 'hosp', type: 'hospital', x: 20, y: 50, name: 'City Hospital' },
-    { id: 'resA', type: 'house', x: 50, y: 20, name: 'Residential Area A' },
-    { id: 'fire', type: 'firestation', x: 50, y: 80, name: 'Fire Station' },
-    { id: 'int1', type: 'intersection', x: 50, y: 50, name: 'Main Intersection' },
-    { id: 'comm', type: 'house', x: 80, y: 80, name: 'Commercial Area' },
-    { id: 'mainRd', type: 'intersection', x: 80, y: 50, name: 'Main Road' }
+    { id: 'hosp', type: 'hospital', x: 15, y: 50, name: 'City Hospital' },
+    { id: 'resA', type: 'house', x: 35, y: 20, name: 'Residential Area A' },
+    { id: 'fire', type: 'firestation', x: 50, y: 20, name: 'Fire Station' },
+    { id: 'mainRd', type: 'intersection', x: 35, y: 50, name: 'Main Road' },
+    { id: 'comm', type: 'house', x: 85, y: 80, name: 'Commercial District' },
+    { id: 'resB', type: 'house', x: 35, y: 80, name: 'Residential Area B' },
+    { id: 'police', type: 'policestation', x: 85, y: 20, name: 'Police Station' },
+    { id: 'centJunc', type: 'intersection', x: 50, y: 50, name: 'Central Junction' },
+    { id: 'eastJunc', type: 'intersection', x: 85, y: 50, name: 'East Junction' },
+    { id: 'secRd', type: 'intersection', x: 50, y: 80, name: 'Secondary Road' }
   ],
   edges: [
-    { id: 'e1', from: 'hosp', to: 'int1', distance: 30, traffic: 0, name: 'West Road' },
-    { id: 'e2', from: 'resA', to: 'int1', distance: 30, traffic: 0, name: 'North Road' },
-    { id: 'e3', from: 'fire', to: 'int1', distance: 30, traffic: 0, name: 'South Road' },
-    { id: 'e4', from: 'int1', to: 'mainRd', distance: 30, traffic: 0, name: 'Main Street' },
-    { id: 'e5', from: 'mainRd', to: 'comm', distance: 30, traffic: 0, name: 'Commercial Road' }
+    { id: 'e1', from: 'hosp', to: 'mainRd', distance: 20, traffic: 0, name: 'Hospital Access' },
+    { id: 'e2', from: 'mainRd', to: 'centJunc', distance: 15, traffic: 0, name: 'Main Street West' },
+    { id: 'e3', from: 'centJunc', to: 'eastJunc', distance: 35, traffic: 0, name: 'Main Street East' },
+    { id: 'e4', from: 'resA', to: 'fire', distance: 15, traffic: 0, name: 'North Avenue' },
+    { id: 'e5', from: 'fire', to: 'police', distance: 35, traffic: 0, name: 'Police Blvd' },
+    { id: 'e6', from: 'resB', to: 'secRd', distance: 15, traffic: 0, name: 'South Avenue West' },
+    { id: 'e7', from: 'secRd', to: 'comm', distance: 35, traffic: 0, name: 'South Avenue East' },
+    { id: 'e8', from: 'resA', to: 'mainRd', distance: 30, traffic: 0, name: 'West Cross Road North' },
+    { id: 'e9', from: 'mainRd', to: 'resB', distance: 30, traffic: 0, name: 'West Cross Road South' },
+    { id: 'e10', from: 'fire', to: 'centJunc', distance: 30, traffic: 0, name: 'Central Cross Road North' },
+    { id: 'e11', from: 'centJunc', to: 'secRd', distance: 30, traffic: 0, name: 'Central Cross Road South' },
+    { id: 'e12', from: 'police', to: 'eastJunc', distance: 30, traffic: 0, name: 'East Cross Road North' },
+    { id: 'e13', from: 'eastJunc', to: 'comm', distance: 30, traffic: 0, name: 'East Cross Road South' }
   ],
   vehicles: [
     {
