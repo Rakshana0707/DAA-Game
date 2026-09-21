@@ -671,16 +671,25 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
               </>
             ) : (
               <>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#f59e0b', marginBottom: '1rem' }}>LEVEL 2: Busy Morning</h1>
-                <p style={{ fontSize: '1.25rem', color: '#475569', marginBottom: '2rem', lineHeight: '1.6' }}>
-                  The city begins a busy morning. Three incidents will eventually occur:
-                  <br/><br/>
-                  🚑 Medical Emergency (Medium Severity)<br/>
-                  🔥 Small Fire (Medium Severity)<br/>
-                  🚗 Road Accident (Low Severity)
-                </p>
-                <button className="btn" style={{ backgroundColor: '#3b82f6', width: '100%', fontSize: '1.25rem' }} onClick={() => setShowIntro(false)}>
-                  BEGIN LEVEL
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#f59e0b', marginBottom: '0.5rem' }}>DAY 2 — 08:00 AM</h1>
+                <h2 style={{ fontSize: '1.5rem', color: '#1e293b', marginBottom: '0.5rem' }}>BUSY MORNING</h2>
+                <p style={{ fontSize: '1.1rem', color: '#475569', marginBottom: '1rem' }}>The city is starting its busiest hour. Stay alert — several incidents may require your attention.</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', textAlign: 'left', backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem' }}>
+                  <div><strong>Budget:</strong> ${gameState.budget}</div>
+                  <div><strong>Safety:</strong> {gameState.populationSafety}%</div>
+                  <div><strong>Traffic:</strong> {gameState.trafficFlow}%</div>
+                  <div><strong>Energy:</strong> {gameState.energyLevel}%</div>
+                </div>
+                <h2 style={{ fontSize: '1.5rem', color: '#1e293b', marginBottom: '0.5rem' }}>AVAILABLE RESOURCES</h2>
+                <div style={{ textAlign: 'left', backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '1.1rem' }}>
+                  <div>🚑 Ambulances: 2</div>
+                  <div>🚒 Fire Truck: 1</div>
+                </div>
+                <button className="btn" style={{ backgroundColor: '#f59e0b', width: '100%', fontSize: '1.25rem' }} onClick={() => {
+                  setShowIntro(false);
+                  handleNextDay();
+                }}>
+                  START BUSY MORNING
                 </button>
               </>
             )}

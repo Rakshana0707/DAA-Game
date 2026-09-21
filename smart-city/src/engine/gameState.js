@@ -77,6 +77,22 @@ export const level2CityState = {
       status: 'Idle',
       destination: null,
       isAvailable: true
+    },
+    {
+      id: 'amb2',
+      type: 'ambulance',
+      currentLocation: 'hosp',
+      status: 'Idle',
+      destination: null,
+      isAvailable: true
+    },
+    {
+      id: 'fire1',
+      type: 'firetruck',
+      currentLocation: 'fire',
+      status: 'Idle',
+      destination: null,
+      isAvailable: true
     }
   ]
 };
