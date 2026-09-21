@@ -152,27 +152,38 @@ export const level2Events = [
     type: 'medical',
     severity: 'medium',
     location: 'resA',
-    title: '🚑 MEDICAL EMERGENCY',
-    description: 'Medical emergency reported in Residential Area A. Severity: Medium.',
-    options: [{ text: 'ACKNOWLEDGE', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'none' } }]
+    icon: '🚑',
+    title: 'NEW CITY INCIDENT',
+    description: 'Medical emergency reported in Residential Area A.',
+    options: [
+      { text: 'DISPATCH AMBULANCE 1', action: { type: 'dispatch', vehicleId: 'amb1', destination: 'resA' } },
+      { text: 'DISPATCH AMBULANCE 2', action: { type: 'dispatch', vehicleId: 'amb2', destination: 'resA' } }
+    ]
   },
   {
     id: 'lvl2_fire_1',
     type: 'fire',
     severity: 'medium',
     location: 'comm',
-    title: '🔥 SMALL FIRE',
-    description: 'Small fire reported in the Commercial Area. Severity: Medium.',
-    options: [{ text: 'ACKNOWLEDGE', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'none' } }]
+    icon: '🔥',
+    title: 'NEW CITY INCIDENT',
+    description: 'Fire reported in Commercial District.',
+    options: [
+      { text: 'DISPATCH FIRE TRUCK 1', action: { type: 'dispatch', vehicleId: 'fire1', destination: 'comm' } }
+    ]
   },
   {
     id: 'lvl2_acc_1',
     type: 'accident',
     severity: 'low',
     location: 'mainRd',
-    title: '🚗 ROAD ACCIDENT',
-    description: 'Road accident on Main Road. Severity: Low.',
-    options: [{ text: 'ACKNOWLEDGE', cost: 0, effect: { safety: 0, traffic: 0 }, action: { type: 'none' } }]
+    icon: '🚗',
+    title: 'NEW CITY INCIDENT',
+    description: 'Road accident reported on Main Road.',
+    options: [
+      { text: 'DISPATCH AMBULANCE 1', action: { type: 'dispatch', vehicleId: 'amb1', destination: 'mainRd' } },
+      { text: 'DISPATCH AMBULANCE 2', action: { type: 'dispatch', vehicleId: 'amb2', destination: 'mainRd' } }
+    ]
   }
 ];
 

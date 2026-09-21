@@ -10,6 +10,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
   const [gameState, setGameState] = useState(getInitialGameState(level));
   const [showIntro, setShowIntro] = useState(level === 1 || level === 2);
   const [currentEvent, setCurrentEvent] = useState(null);
+  const [activeEvents, setActiveEvents] = useState([]);
   const [levelComplete, setLevelComplete] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const isHelpOpenRef = useRef(isHelpOpen);
@@ -168,28 +169,92 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
     return () => clearInterval(timer);
   }, [currentEvent?.missionStatus]);
 
+  useEffect(() => {
+    if (activeEvents.length === 0) return;
+    
+    const timer = setInterval(() => {
+      if (isHelpOpenRef.current) return;
+      setActiveEvents(prevEvents => prevEvents.map(ev => {
+        if (ev.missionStatus === 'SUCCESS' || ev.missionStatus === 'FAILED' || ev.missionStatus === 'RESPONDING') return ev;
+        const newTime = ev.timeLeft - 1;
+        if (newTime <= 0) {
+          safeSetTimeout(() => {
+            setLogs(prevLogs => [...prevLogs, `Mission FAILED: Timer ran out for ${ev.location}!`, 'City safety decreased.'].slice(-5));
+            setGameState(gs => ({ ...gs, populationSafety: Math.max(0, gs.populationSafety - 20) }));
+          }, 0);
+          return { ...ev, timeLeft: 0, missionStatus: 'FAILED' };
+        }
+        return { ...ev, timeLeft: newTime };
+      }));
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [activeEvents]);
+
   const addLog = (msg) => {
     setLogs(prev => [...prev, msg].slice(-5)); // Keep last 5 logs
   };
 
   const handleNextDay = () => {
-    // Deterministically take the next event from the queue
     const nextEvent = gameState.events[0];
     if (nextEvent) {
       setGameState(prev => ({
         ...prev,
         events: prev.events.slice(1) // Remove it from the queue
       }));
-      addLog(`Day ${gameState.day} started. Monitoring city...`);
+      addLog(level === 2 ? `Busy morning started. Monitoring city...` : `Day ${gameState.day} started. Monitoring city...`);
       safeSetTimeout(() => {
-        setCurrentEvent({ ...nextEvent, timeLeft: 60, missionStatus: 'ACTIVE' });
-        addLog(`Event: ${nextEvent.title}`);
+        if (level === 2) {
+          setActiveEvents(prev => [...prev, { ...nextEvent, timeLeft: 60, missionStatus: 'ACTIVE' }]);
+          addLog(`🚨 NEW CITY INCIDENT`);
+          addLog(nextEvent.description);
+        } else {
+          setCurrentEvent({ ...nextEvent, timeLeft: 60, missionStatus: 'ACTIVE' });
+          addLog(`Event: ${nextEvent.title}`);
+        }
       }, 2500); // Wait approx 2-3 seconds as requested
     } else {
       setGameState(prev => ({ ...prev, day: prev.day + 1 }));
       addLog(`Day ${gameState.day} started. All clear, no events.`);
     }
   };
+  const handleLevel2OptionSelect = (ev, option) => {
+    // 1. Update vehicle state
+    setGameState(prev => ({
+      ...prev,
+      cityState: {
+        ...prev.cityState,
+        vehicles: prev.cityState.vehicles.map(v => 
+          v.id === option.action.vehicleId
+            ? { ...v, status: 'DISPATCHED', assignedIncident: ev.id, destination: option.action.destination }
+            : v
+        )
+      }
+    }));
+    
+    addLog(`${option.text} requested.`);
+    
+    // 2. Change event status to RESPONDING
+    setActiveEvents(prev => prev.map(e => e.id === ev.id ? { ...e, missionStatus: 'RESPONDING', options: [] } : e));
+
+    // 3. Trigger the next incident if there's one in the queue
+    const nextEv = gameState.events[0];
+    if (nextEv) {
+      setGameState(prev => ({ ...prev, events: prev.events.slice(1) }));
+      safeSetTimeout(() => {
+        setActiveEvents(prev => [...prev, { ...nextEv, timeLeft: 60, missionStatus: 'ACTIVE' }]);
+        addLog(`${nextEv.icon} NEW CITY INCIDENT`);
+        addLog(nextEv.description);
+      }, 4000); // 4 seconds later
+    } else {
+      // Just for fun, if all are dispatched, maybe wait and show success?
+      safeSetTimeout(() => {
+        setActiveEvents(prev => prev.map(e => ({ ...e, missionStatus: 'SUCCESS' })));
+        addLog(`All incidents resolved! Level 2 complete.`);
+      }, 5000);
+    }
+  };
+
 
   const handleOptionSelect = (option) => {
     if (gameState.budget < option.cost) {
@@ -503,7 +568,45 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
               </div>
             </div>
           )}
-
+          {/* Active Events Overlay for Level 2 */}
+          {level === 2 && activeEvents.length > 0 && (
+            <div style={{ position: 'absolute', top: '1rem', right: '1rem', width: '350px', display: 'flex', flexDirection: 'column', gap: '1rem', zIndex: 40, maxHeight: '90%', overflowY: 'auto' }}>
+              {activeEvents.map(ev => (
+                <div key={ev.id} style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: ev.type === 'medical' ? '#ef4444' : ev.type === 'fire' ? '#f97316' : '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {ev.icon} {ev.title}
+                  </h3>
+                  <p style={{ margin: '0.5rem 0', fontSize: '0.9rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{ev.description}</p>
+                  <div style={{ fontSize: '0.85rem', color: ev.timeLeft <= 10 ? '#ef4444' : '#64748b', fontWeight: 'bold', marginBottom: '0.75rem' }}>
+                    Time Remaining: {ev.timeLeft}s
+                  </div>
+                  
+                  {ev.missionStatus === 'ACTIVE' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {ev.options.map((opt, idx) => {
+                        const vehicle = gameState.cityState.vehicles.find(v => v.id === opt.action.vehicleId);
+                        const isAvail = vehicle && vehicle.status === 'AVAILABLE';
+                        return (
+                          <button
+                            key={idx}
+                            className="btn"
+                            style={{ backgroundColor: isAvail ? '#3b82f6' : '#9ca3af', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}
+                            onClick={() => handleLevel2OptionSelect(ev, opt)}
+                            disabled={!isAvail}
+                          >
+                            {opt.text} {!isAvail ? '(BUSY)' : ''}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {ev.missionStatus === 'RESPONDING' && <div style={{ color: '#3b82f6', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center' }}>RESPONDING...</div>}
+                  {ev.missionStatus === 'SUCCESS' && <div style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center' }}>RESOLVED!</div>}
+                  {ev.missionStatus === 'FAILED' && <div style={{ color: '#ef4444', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center' }}>FAILED</div>}
+                </div>
+              ))}
+            </div>
+          )}
           {/* Level Complete Overlay */}
           {levelComplete && (
             <div style={{
