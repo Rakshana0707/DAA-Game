@@ -116,56 +116,39 @@ export const LEVEL_GUIDES = {
         number: 1,
         title: 'Section 1 — Situation',
         type: 'text',
-        content:
-          'The city is experiencing a busy morning. Multiple incidents may require attention, and emergency resources are limited.'
+        content: 'The city is entering a busy morning. Several incidents may occur while emergency resources are limited.'
       },
       {
         id: 'objective',
         number: 2,
         title: 'Section 2 — Objective',
         type: 'text',
-        content:
-          'Respond to the incidents that appear throughout the level and keep the city safe.'
+        content: 'Manage the morning\'s emergencies while keeping the city safe and using emergency resources effectively.'
       },
       {
-        id: 'incidents',
+        id: 'what-is-new',
         number: 3,
-        title: 'Section 3 — Incidents',
-        type: 'incidents',
-        intro: 'Types of incidents you may encounter:',
+        title: 'Section 3 — What Is New?',
+        type: 'bullet-list',
+        intro: 'Compared with Level 1:',
         items: [
-          {
-            icon: '🚑',
-            name: 'Medical Emergency',
-            requirement: 'Requires an ambulance.'
-          },
-          {
-            icon: '🔥',
-            name: 'Fire',
-            requirement: 'Requires a fire truck.'
-          },
-          {
-            icon: '🚗',
-            name: 'Road Accident',
-            requirement: 'Requires an ambulance.'
-          }
-        ],
-        note: 'Incidents can have different levels of urgency and severity.'
+          'More than one incident can occur.',
+          'Different incidents have different severity levels.',
+          'Different incidents have different urgency levels.',
+          'Emergency vehicles are limited.',
+          'The player must monitor several situations.',
+          'Decisions made for one incident can affect the rest of the city.'
+        ]
       },
       {
-        id: 'what-to-do',
+        id: 'incident-types',
         number: 4,
-        title: 'Section 4 — What You Need To Do',
-        type: 'steps',
-        intro: 'Operational workflow for managing multiple incidents:',
+        title: 'Section 4 — Incident Types',
+        type: 'incidents',
         items: [
-          'Watch for new incident alerts.',
-          'Read the incident information.',
-          'Check the available emergency vehicles.',
-          'Decide how to respond.',
-          'Dispatch the appropriate vehicle.',
-          'Monitor the result.',
-          'Continue responding as new incidents appear.'
+          { icon: '🚑', name: 'Medical Emergency', requirement: 'Requires an ambulance.' },
+          { icon: '🔥', name: 'Fire', requirement: 'Requires a fire truck.' },
+          { icon: '🚗', name: 'Road Accident', requirement: 'Requires an ambulance.' }
         ]
       },
       {
@@ -173,38 +156,27 @@ export const LEVEL_GUIDES = {
         number: 5,
         title: 'Section 5 — Important Information',
         type: 'stats',
-        intro: 'Key operational metrics to observe:',
         items: [
-          {
-            name: 'Severity',
-            desc: 'Indicates how serious an incident is.'
-          },
-          {
-            name: 'Urgency',
-            desc: 'Indicates how quickly an incident should receive attention.'
-          },
-          {
-            name: 'City Safety',
-            desc: 'Represents the overall condition of the city.'
-          },
-          {
-            name: 'Vehicle status',
-            desc: 'Shows whether a vehicle is available or busy.'
-          }
+          { name: 'Severity', desc: 'How serious the incident is.' },
+          { name: 'Urgency', desc: 'How quickly the incident needs attention.' },
+          { name: 'City Safety', desc: 'The overall safety condition of the city.' },
+          { name: 'Vehicle Status', desc: 'Whether an emergency vehicle is available or busy.' }
         ]
       },
       {
-        id: 'tips',
+        id: 'what-player-does',
         number: 6,
-        title: 'Section 6 — Tips',
-        type: 'bullet-list',
+        title: 'Section 6 — What The Player Does',
+        type: 'steps',
         items: [
-          'Keep an eye on all active incidents.',
-          'Do not waste emergency vehicles.',
-          'Pay attention to severity and urgency.',
-          'Respond before incidents become more serious.',
-          'Monitor City Safety.',
-          'Plan your actions instead of responding randomly.'
+          'Monitor incoming incidents.',
+          'Inspect their severity and urgency.',
+          'Check available emergency vehicles.',
+          'Decide which response should happen.',
+          'Dispatch the appropriate vehicle.',
+          'Monitor the response.',
+          'React when new incidents appear.',
+          'Keep City Safety above the required level.'
         ]
       },
       {
@@ -213,23 +185,35 @@ export const LEVEL_GUIDES = {
         title: 'Section 7 — DAA Engine',
         badge: 'Behind the Scenes',
         type: 'daa',
-        content:
-          'The game uses DAA algorithms internally to analyze incidents and organize the city\'s emergency response.\n\nMaximum and Minimum is used to identify the most and least severe active incidents.\n\nMerge Sort is used internally to organize the emergency response queue.\n\nYou do not need to manually solve these algorithms.'
+        content: 'DAA algorithms operate behind the scenes to help the city analyze and organize emergency responses.\n\nMaximum and Minimum helps identify the most and least severe active incidents.\n\nMerge Sort helps organize the emergency response queue.\n\nYou do not manually solve these algorithms. Your decisions happen through the city-management interface.'
+      },
+      {
+        id: 'tips',
+        number: 8,
+        title: 'Section 8 — Tips',
+        type: 'bullet-list',
+        items: [
+          'Keep an eye on all active incidents.',
+          'Pay attention to severity and urgency.',
+          'Check vehicle availability before dispatching.',
+          'Avoid leaving serious incidents unattended.',
+          'Think ahead when resources are limited.',
+          'Monitor City Safety.'
+        ]
       },
       {
         id: 'failure',
-        number: 8,
-        title: 'Section 8 — Failure',
+        number: 9,
+        title: 'Section 9 — Failure',
         type: 'alert',
-        content:
-          'The city can fail the level if too many incidents remain unresolved or City Safety falls below the required level.'
+        content: 'The level can fail if City Safety falls too low or too many incidents remain unresolved.'
       },
       {
         id: 'goal',
-        number: 9,
-        title: 'Section 9 — Goal',
+        number: 10,
+        title: 'Section 10 — Goal',
         type: 'goal',
-        content: 'Resolve the morning\'s emergencies while keeping City Safety above the required level.'
+        content: 'Successfully manage the busy morning and keep the city safe.'
       }
     ]
   }

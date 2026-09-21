@@ -95,8 +95,6 @@ export function getInitialGameState(level) {
   };
 }
 
-// Keep this for backwards compatibility if needed, but prefer getInitialGameState
-export const initialGameState = getInitialGameState(1);
 
 export const level1Events = [
   {

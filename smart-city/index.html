@@ -2,9 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>smart-city</title>
+    <script>
+      window.onerror = function(message, source, lineno, colno, error) {
+        document.body.innerHTML = '<div style="color:red;padding:20px;"><h1>Error</h1><pre>' + message + '\n' + (error && error.stack ? error.stack : '') + '</pre></div>';
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>
