@@ -383,6 +383,15 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
             </div>
           )}
 
+          {/* Available Resources Panel */}
+          <div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.5rem' }}>
+            <h3 style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Available Resources</h3>
+            <div style={{ fontSize: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div>🚑 Ambulances: <strong>{gameState.cityState.vehicles.filter(v => v.type === 'ambulance' && (v.status === 'AVAILABLE' || v.status === 'Idle')).length}</strong></div>
+              <div>🚒 Fire Trucks: <strong>{gameState.cityState.vehicles.filter(v => v.type === 'firetruck' && (v.status === 'AVAILABLE' || v.status === 'Idle')).length}</strong></div>
+            </div>
+          </div>
+
           <button 
             className="btn"
             style={{ marginTop: '1rem', backgroundColor: '#3b82f6', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
