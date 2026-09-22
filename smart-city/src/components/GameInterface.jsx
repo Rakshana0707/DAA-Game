@@ -576,6 +576,12 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: ev.type === 'medical' ? '#ef4444' : ev.type === 'fire' ? '#f97316' : '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {ev.icon} {ev.title}
                   </h3>
+                  {ev.severity !== undefined && ev.urgency !== undefined && (
+                    <div style={{ fontFamily: 'monospace', fontSize: '0.9rem', marginBottom: '0.5rem', whiteSpace: 'pre', color: '#1e293b' }}>
+                      <div>Severity: {"█".repeat(ev.severity)}{"░".repeat(10 - ev.severity)} {ev.severity}/10</div>
+                      <div>Urgency:  {"█".repeat(ev.urgency)}{"░".repeat(10 - ev.urgency)} {ev.urgency}/10</div>
+                    </div>
+                  )}
                   <p style={{ margin: '0.5rem 0', fontSize: '0.9rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{ev.description}</p>
                   <div style={{ fontSize: '0.85rem', color: ev.timeLeft <= 10 ? '#ef4444' : '#64748b', fontWeight: 'bold', marginBottom: '0.75rem' }}>
                     Time Remaining: {ev.timeLeft}s

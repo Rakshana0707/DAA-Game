@@ -150,10 +150,13 @@ export const level2Events = [
   {
     id: 'lvl2_med_1',
     type: 'medical',
-    severity: 'medium',
     location: 'resA',
+    severity: 8,
+    urgency: 9,
+    status: 'pending',
+    createdAt: null,
     icon: '🚑',
-    title: 'NEW CITY INCIDENT',
+    title: 'MEDICAL EMERGENCY',
     description: 'Medical emergency reported in Residential Area A.',
     options: [
       { text: 'DISPATCH AMBULANCE 1', action: { type: 'dispatch', vehicleId: 'amb1', destination: 'resA' } },
@@ -163,10 +166,13 @@ export const level2Events = [
   {
     id: 'lvl2_fire_1',
     type: 'fire',
-    severity: 'medium',
     location: 'comm',
+    severity: 7,
+    urgency: 8,
+    status: 'pending',
+    createdAt: null,
     icon: '🔥',
-    title: 'NEW CITY INCIDENT',
+    title: 'FIRE',
     description: 'Fire reported in Commercial District.',
     options: [
       { text: 'DISPATCH FIRE TRUCK 1', action: { type: 'dispatch', vehicleId: 'fire1', destination: 'comm' } }
@@ -175,10 +181,13 @@ export const level2Events = [
   {
     id: 'lvl2_acc_1',
     type: 'accident',
-    severity: 'low',
     location: 'mainRd',
+    severity: 5,
+    urgency: 6,
+    status: 'pending',
+    createdAt: null,
     icon: '🚗',
-    title: 'NEW CITY INCIDENT',
+    title: 'ROAD ACCIDENT',
     description: 'Road accident reported on Main Road.',
     options: [
       { text: 'DISPATCH AMBULANCE 1', action: { type: 'dispatch', vehicleId: 'amb1', destination: 'mainRd' } },
