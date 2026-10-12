@@ -5,6 +5,7 @@ import HelpGuideModal from './HelpGuideModal';
 import { getInitialGameState, applyEventResult } from '../engine/gameState';
 import { binarySearch } from '../engine/algorithms/binarySearch';
 import { findMinMax } from '../engine/algorithms/maxMin';
+import { mergeSort } from '../engine/algorithms/mergeSort';
 import { LogOut, ArrowRight, AlertTriangle, Activity, HelpCircle } from 'lucide-react';
 
 export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
@@ -413,6 +414,31 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
     }
   }
 
+  // Helper to format incident title for response queue
+  const formatIncidentTitle = (incident) => {
+    if (!incident) return '';
+    return incident.title
+      ? incident.title
+          .split(' ')
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ')
+      : 'Incident';
+  };
+
+  // DAA Engine: Compute Emergency Response Queue using Merge Sort (Divide and Conquer)
+  let responseQueue = null;
+  if (activeIncidentsForAnalysis.length > 1) {
+    // 1 & 2. Sort active incidents using implemented Merge Sort
+    // 3. Primary: urgency - highest first
+    // 4. Secondary: severity - highest first
+    responseQueue = mergeSort(activeIncidentsForAnalysis, (a, b) => {
+      if (b.urgency !== a.urgency) {
+        return b.urgency - a.urgency;
+      }
+      return b.severity - a.severity;
+    });
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#f8fafc' }}>
       <StatusBar state={gameState} onOpenHelp={() => setIsHelpOpen(true)} />
@@ -507,6 +533,31 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
               </div>
               <div style={{ fontSize: '0.7rem', color: '#64748b', borderTop: '1px solid #dbeafe', paddingTop: '0.35rem', fontStyle: 'italic', lineHeight: '1.3' }}>
                 DAA Engine: Maximum/Minimum analysis identifies the severity range among active incidents.
+              </div>
+            </div>
+          )}
+
+          {/* Level 2 DAA Engine: Response Queue (Merge Sort) */}
+          {level === 2 && responseQueue && responseQueue.length > 0 && (
+            <div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#b91c1c', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '1rem' }}>🚨</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase' }}>RESPONSE QUEUE</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.775rem' }}>
+                {responseQueue.map((item, index) => (
+                  <div key={item.id} style={{ padding: '0.25rem 0', borderBottom: index < responseQueue.length - 1 ? '1px dashed #fca5a5' : 'none' }}>
+                    <div style={{ fontWeight: 'bold', color: '#1e293b' }}>
+                      {index + 1}. {item.icon} {formatIncidentTitle(item)}
+                    </div>
+                    <div style={{ color: '#475569', fontSize: '0.725rem', marginTop: '0.1rem' }}>
+                      Urgency: <strong>{item.urgency}</strong> &nbsp;|&nbsp; Severity: <strong>{item.severity}</strong>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#64748b', borderTop: '1px solid #fee2e2', paddingTop: '0.35rem', marginTop: '0.4rem', fontStyle: 'italic', lineHeight: '1.3' }}>
+                DAA Engine: Merge Sort (Priority: Urgency → Severity)
               </div>
             </div>
           )}
@@ -673,6 +724,56 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                     lineHeight: '1.4'
                   }}>
                     DAA Engine: Maximum/Minimum analysis identifies the severity range among active incidents.
+                  </div>
+                </div>
+              )}
+
+              {/* DAA RESPONSE QUEUE Card (When multiple incidents are active) */}
+              {responseQueue && responseQueue.length > 0 && (
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '2px solid #ef4444',
+                  borderRadius: '0.5rem',
+                  padding: '1rem',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#b91c1c', marginBottom: '0.75rem' }}>
+                    <span style={{ fontSize: '1.1rem' }}>🚨</span>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                      RESPONSE QUEUE
+                    </h3>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                    {responseQueue.map((item, index) => (
+                      <div key={item.id} style={{
+                        backgroundColor: '#fef2f2',
+                        border: '1px solid #fecaca',
+                        borderRadius: '0.375rem',
+                        padding: '0.5rem 0.75rem',
+                        fontSize: '0.875rem'
+                      }}>
+                        <div style={{ fontWeight: 'bold', color: '#1e293b', marginBottom: '0.2rem' }}>
+                          {index + 1}. {item.icon} {formatIncidentTitle(item)}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', gap: '1rem' }}>
+                          <span>Urgency: <strong>{item.urgency}</strong></span>
+                          <span>Severity: <strong>{item.severity}</strong></span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{
+                    borderTop: '1px solid #fee2e2',
+                    marginTop: '0.75rem',
+                    paddingTop: '0.5rem',
+                    fontSize: '0.75rem',
+                    color: '#64748b',
+                    fontStyle: 'italic',
+                    lineHeight: '1.4'
+                  }}>
+                    DAA Engine: Merge Sort organizes the response queue (Primary: Urgency, Secondary: Severity).
                   </div>
                 </div>
               )}
