@@ -13,6 +13,7 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
   const [showIntro, setShowIntro] = useState(level === 1 || level === 2);
   const [currentEvent, setCurrentEvent] = useState(null);
   const [activeEvents, setActiveEvents] = useState([]);
+  const [selectedIncidentId, setSelectedIncidentId] = useState(null);
   const [levelComplete, setLevelComplete] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const isHelpOpenRef = useRef(isHelpOpen);
@@ -198,63 +199,123 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
   };
 
   const handleNextDay = () => {
-    const nextEvent = gameState.events[0];
-    if (nextEvent) {
-      setGameState(prev => ({
-        ...prev,
-        events: prev.events.slice(1) // Remove it from the queue
-      }));
-      addLog(level === 2 ? `Busy morning started. Monitoring city...` : `Day ${gameState.day} started. Monitoring city...`);
-      safeSetTimeout(() => {
-        if (level === 2) {
-          setActiveEvents(prev => [...prev, { ...nextEvent, timeLeft: 60, missionStatus: 'ACTIVE' }]);
+    if (level === 2) {
+      addLog(`Busy morning started. Monitoring city...`);
+      const allLvl2Events = [...gameState.events];
+      setGameState(prev => ({ ...prev, events: [] }));
+
+      // Progressive escalation of the busy morning
+      if (allLvl2Events[0]) {
+        safeSetTimeout(() => {
+          setActiveEvents(prev => [...prev, { ...allLvl2Events[0], timeLeft: 60, missionStatus: 'ACTIVE' }]);
           addLog(`🚨 NEW CITY INCIDENT`);
-          addLog(nextEvent.description);
-        } else {
+          addLog(allLvl2Events[0].description);
+        }, 1500);
+      }
+
+      if (allLvl2Events[1]) {
+        safeSetTimeout(() => {
+          setActiveEvents(prev => {
+            if (prev.some(e => e.id === allLvl2Events[1].id)) return prev;
+            return [...prev, { ...allLvl2Events[1], timeLeft: 60, missionStatus: 'ACTIVE' }];
+          });
+          addLog(`🔥 NEW CITY INCIDENT`);
+          addLog(allLvl2Events[1].description);
+        }, 4500);
+      }
+
+      if (allLvl2Events[2]) {
+        safeSetTimeout(() => {
+          setActiveEvents(prev => {
+            if (prev.some(e => e.id === allLvl2Events[2].id)) return prev;
+            return [...prev, { ...allLvl2Events[2], timeLeft: 60, missionStatus: 'ACTIVE' }];
+          });
+          addLog(`🚗 NEW CITY INCIDENT`);
+          addLog(allLvl2Events[2].description);
+        }, 7500);
+      }
+    } else {
+      const nextEvent = gameState.events[0];
+      if (nextEvent) {
+        setGameState(prev => ({
+          ...prev,
+          events: prev.events.slice(1) // Remove it from the queue
+        }));
+        addLog(`Day ${gameState.day} started. Monitoring city...`);
+        safeSetTimeout(() => {
           setCurrentEvent({ ...nextEvent, timeLeft: 60, missionStatus: 'ACTIVE' });
           addLog(`Event: ${nextEvent.title}`);
-        }
-      }, 2500); // Wait approx 2-3 seconds as requested
-    } else {
-      setGameState(prev => ({ ...prev, day: prev.day + 1 }));
-      addLog(`Day ${gameState.day} started. All clear, no events.`);
+        }, 2500);
+      } else {
+        setGameState(prev => ({ ...prev, day: prev.day + 1 }));
+        addLog(`Day ${gameState.day} started. All clear, no events.`);
+      }
     }
   };
-  const handleLevel2OptionSelect = (ev, option) => {
-    // 1. Update vehicle state
+
+  const handleDispatchVehicle = (ev) => {
+    const requiredType = ev.type === 'fire' ? 'firetruck' : 'ambulance';
+    const availableVehicle = gameState.cityState.vehicles.find(
+      v => v.type === requiredType && (v.status === 'AVAILABLE' || v.status === 'Idle')
+    );
+
+    if (!availableVehicle) {
+      alert(`No ${requiredType === 'firetruck' ? 'Fire Truck' : 'Ambulance'} currently available!`);
+      return;
+    }
+
+    const vehicleName = availableVehicle.id === 'amb1'
+      ? 'Ambulance 1'
+      : availableVehicle.id === 'amb2'
+        ? 'Ambulance 2'
+        : 'Fire Truck 1';
+
+    // 1. Mark vehicle DISPATCHED and update available count
     setGameState(prev => ({
       ...prev,
       cityState: {
         ...prev.cityState,
         vehicles: prev.cityState.vehicles.map(v => 
-          v.id === option.action.vehicleId
-            ? { ...v, status: 'DISPATCHED', assignedIncident: ev.id, destination: option.action.destination }
+          v.id === availableVehicle.id
+            ? { ...v, status: 'DISPATCHED', isAvailable: false, assignedIncident: ev.id, destination: ev.location }
             : v
         )
       }
     }));
-    
-    addLog(`${option.text} requested.`);
-    
-    // 2. Change event status to RESPONDING
-    setActiveEvents(prev => prev.map(e => e.id === ev.id ? { ...e, missionStatus: 'RESPONDING', options: [] } : e));
 
-    // 3. Trigger the next incident if there's one in the queue
-    const nextEv = gameState.events[0];
-    if (nextEv) {
-      setGameState(prev => ({ ...prev, events: prev.events.slice(1) }));
-      safeSetTimeout(() => {
-        setActiveEvents(prev => [...prev, { ...nextEv, timeLeft: 60, missionStatus: 'ACTIVE' }]);
-        addLog(`${nextEv.icon} NEW CITY INCIDENT`);
-        addLog(nextEv.description);
-      }, 4000); // 4 seconds later
-    } else {
-      // Just for fun, if all are dispatched, maybe wait and show success?
-      safeSetTimeout(() => {
-        setActiveEvents(prev => prev.map(e => ({ ...e, missionStatus: 'SUCCESS' })));
-        addLog(`All incidents resolved! Level 2 complete.`);
-      }, 5000);
-    }
+    addLog(`[DISPATCH] ${vehicleName} dispatched to ${formatIncidentTitle(ev)}.`);
+
+    // 2. Mark incident as RESPONDING
+    setActiveEvents(prev => prev.map(e => 
+      e.id === ev.id 
+        ? { ...e, missionStatus: 'RESPONDING', assignedVehicle: vehicleName } 
+        : e
+    ));
+
+    // 3. Keep responding until next resolution step (simulated progress: 8 seconds)
+    safeSetTimeout(() => {
+      setActiveEvents(prev => prev.map(e => 
+        e.id === ev.id 
+          ? { ...e, missionStatus: 'SUCCESS' } 
+          : e
+      ));
+
+      // Free vehicle back to AVAILABLE
+      setGameState(prev => ({
+        ...prev,
+        populationSafety: Math.min(100, prev.populationSafety + 5),
+        cityState: {
+          ...prev.cityState,
+          vehicles: prev.cityState.vehicles.map(v => 
+            v.id === availableVehicle.id
+              ? { ...v, status: 'AVAILABLE', isAvailable: true, assignedIncident: null, destination: null }
+              : v
+          )
+        }
+      }));
+
+      addLog(`✅ ${formatIncidentTitle(ev)} resolved! ${vehicleName} is now AVAILABLE.`);
+    }, 8000);
   };
 
 
@@ -728,37 +789,46 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                 </div>
               )}
 
-              {/* DAA RESPONSE QUEUE Card (When multiple incidents are active) */}
+              {/* RECOMMENDED RESPONSE QUEUE Card (Generated by DAA Engine via Merge Sort) */}
               {responseQueue && responseQueue.length > 0 && (
                 <div style={{
                   backgroundColor: '#ffffff',
                   border: '2px solid #ef4444',
                   borderRadius: '0.5rem',
                   padding: '1rem',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#b91c1c', marginBottom: '0.75rem' }}>
-                    <span style={{ fontSize: '1.1rem' }}>🚨</span>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
-                      RESPONSE QUEUE
-                    </h3>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#b91c1c' }}>
+                      <span style={{ fontSize: '1.1rem' }}>🚨</span>
+                      <h3 style={{ fontSize: '1rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                        RECOMMENDED RESPONSE QUEUE
+                      </h3>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', marginTop: '0.2rem' }}>
+                      Generated by the DAA Engine.
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.65rem' }}>
                     {responseQueue.map((item, index) => (
-                      <div key={item.id} style={{
-                        backgroundColor: '#fef2f2',
-                        border: '1px solid #fecaca',
-                        borderRadius: '0.375rem',
-                        padding: '0.5rem 0.75rem',
-                        fontSize: '0.875rem'
-                      }}>
-                        <div style={{ fontWeight: 'bold', color: '#1e293b', marginBottom: '0.2rem' }}>
+                      <div
+                        key={item.id}
+                        onClick={() => setSelectedIncidentId(item.id)}
+                        style={{
+                          backgroundColor: selectedIncidentId === item.id ? '#fef2f2' : '#f8fafc',
+                          border: selectedIncidentId === item.id ? '1px solid #ef4444' : '1px solid #e2e8f0',
+                          borderRadius: '0.375rem',
+                          padding: '0.5rem 0.75rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <div style={{ fontWeight: 'bold', color: '#1e293b', fontSize: '0.9rem' }}>
                           {index + 1}. {item.icon} {formatIncidentTitle(item)}
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', gap: '1rem' }}>
-                          <span>Urgency: <strong>{item.urgency}</strong></span>
-                          <span>Severity: <strong>{item.severity}</strong></span>
+                        <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: '0.2rem', display: 'flex', gap: '1rem' }}>
+                          <div>Urgency: <strong>{item.urgency}</strong></div>
+                          <div>Severity: <strong>{item.severity}</strong></div>
                         </div>
                       </div>
                     ))}
@@ -773,51 +843,148 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
                     fontStyle: 'italic',
                     lineHeight: '1.4'
                   }}>
-                    DAA Engine: Merge Sort organizes the response queue (Primary: Urgency, Secondary: Severity).
+                    The queue is guidance; you make the operational decision.
                   </div>
                 </div>
               )}
 
-              {activeEvents.map(ev => (
-                <div key={ev.id} style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: ev.type === 'medical' ? '#ef4444' : ev.type === 'fire' ? '#f97316' : '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    {ev.icon} {ev.title}
-                  </h3>
-                  {ev.severity !== undefined && ev.urgency !== undefined && (
-                    <div style={{ fontFamily: 'monospace', fontSize: '0.9rem', marginBottom: '0.5rem', whiteSpace: 'pre', color: '#1e293b' }}>
-                      <div>Severity: {"█".repeat(ev.severity)}{"░".repeat(10 - ev.severity)} {ev.severity}/10</div>
-                      <div>Urgency:  {"█".repeat(ev.urgency)}{"░".repeat(10 - ev.urgency)} {ev.urgency}/10</div>
-                    </div>
-                  )}
-                  <p style={{ margin: '0.5rem 0', fontSize: '0.9rem', color: '#334155', whiteSpace: 'pre-wrap' }}>{ev.description}</p>
-                  <div style={{ fontSize: '0.85rem', color: ev.timeLeft <= 10 ? '#ef4444' : '#64748b', fontWeight: 'bold', marginBottom: '0.75rem' }}>
-                    Time Remaining: {ev.timeLeft}s
-                  </div>
-                  
-                  {ev.missionStatus === 'ACTIVE' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {ev.options.map((opt, idx) => {
-                        const vehicle = gameState.cityState.vehicles.find(v => v.id === opt.action.vehicleId);
-                        const isAvail = vehicle && vehicle.status === 'AVAILABLE';
-                        return (
-                          <button
-                            key={idx}
-                            className="btn"
-                            style={{ backgroundColor: isAvail ? '#3b82f6' : '#9ca3af', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}
-                            onClick={() => handleLevel2OptionSelect(ev, opt)}
-                            disabled={!isAvail}
-                          >
-                            {opt.text} {!isAvail ? '(BUSY)' : ''}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {ev.missionStatus === 'RESPONDING' && <div style={{ color: '#3b82f6', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center' }}>RESPONDING...</div>}
-                  {ev.missionStatus === 'SUCCESS' && <div style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center' }}>RESOLVED!</div>}
-                  {ev.missionStatus === 'FAILED' && <div style={{ color: '#ef4444', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center' }}>FAILED</div>}
+              {/* ACTIVE INCIDENTS Section */}
+              <div style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+              }}>
+                <h3 style={{
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: '#0f172a',
+                  marginBottom: '0.75rem'
+                }}>
+                  ACTIVE INCIDENTS
+                </h3>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {activeEvents.map(ev => {
+                    const isSelected = selectedIncidentId === ev.id;
+                    const requiredType = ev.type === 'fire' ? 'firetruck' : 'ambulance';
+                    const availableVehicle = gameState.cityState.vehicles.find(
+                      v => v.type === requiredType && (v.status === 'AVAILABLE' || v.status === 'Idle')
+                    );
+                    const hasAvailableVehicle = !!availableVehicle;
+                    const buttonLabel = ev.type === 'fire'
+                      ? (hasAvailableVehicle ? 'DISPATCH FIRE TRUCK' : 'NO FIRE TRUCK AVAILABLE')
+                      : (hasAvailableVehicle ? 'DISPATCH AMBULANCE' : 'NO AMBULANCE AVAILABLE');
+
+                    return (
+                      <div
+                        key={ev.id}
+                        onClick={() => setSelectedIncidentId(ev.id)}
+                        style={{
+                          border: isSelected ? '2px solid #3b82f6' : '1px solid #e2e8f0',
+                          borderRadius: '0.5rem',
+                          padding: '0.75rem',
+                          backgroundColor: isSelected ? '#f0f9ff' : '#ffffff',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <h4 style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>
+                            {ev.icon} {formatIncidentTitle(ev)}
+                          </h4>
+                          <span style={{ fontSize: '0.75rem', color: ev.timeLeft <= 10 ? '#ef4444' : '#64748b', fontWeight: 'bold' }}>
+                            {ev.timeLeft}s
+                          </span>
+                        </div>
+
+                        <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '0.35rem' }}>
+                          <div>Urgency: <strong>{ev.urgency}</strong></div>
+                          <div>Severity: <strong>{ev.severity}</strong></div>
+                        </div>
+
+                        {ev.severity !== undefined && ev.urgency !== undefined && (
+                          <div style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: '#64748b', marginTop: '0.3rem' }}>
+                            <div>Severity: {"█".repeat(ev.severity)}{"░".repeat(10 - ev.severity)} {ev.severity}/10</div>
+                            <div>Urgency:  {"█".repeat(ev.urgency)}{"░".repeat(10 - ev.urgency)} {ev.urgency}/10</div>
+                          </div>
+                        )}
+
+                        <p style={{ margin: '0.4rem 0', fontSize: '0.85rem', color: '#334155' }}>
+                          {ev.description}
+                        </p>
+
+                        <div style={{ marginTop: '0.5rem' }}>
+                          {ev.missionStatus === 'ACTIVE' && (
+                            <button
+                              className="btn"
+                              style={{
+                                width: '100%',
+                                backgroundColor: hasAvailableVehicle ? (ev.type === 'fire' ? '#ea580c' : '#2563eb') : '#94a3b8',
+                                fontSize: '0.85rem',
+                                padding: '0.5rem',
+                                textAlign: 'center',
+                                cursor: hasAvailableVehicle ? 'pointer' : 'not-allowed'
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDispatchVehicle(ev);
+                              }}
+                              disabled={!hasAvailableVehicle}
+                            >
+                              [{buttonLabel}]
+                            </button>
+                          )}
+                          {ev.missionStatus === 'RESPONDING' && (
+                            <div style={{
+                              backgroundColor: '#eff6ff',
+                              border: '1px solid #bfdbfe',
+                              borderRadius: '0.375rem',
+                              padding: '0.4rem',
+                              color: '#1d4ed8',
+                              fontWeight: 'bold',
+                              fontSize: '0.8rem',
+                              textAlign: 'center'
+                            }}>
+                              Status: RESPONDING ({ev.assignedVehicle || 'Vehicle'} en route)
+                            </div>
+                          )}
+                          {ev.missionStatus === 'SUCCESS' && (
+                            <div style={{
+                              backgroundColor: '#f0fdf4',
+                              border: '1px solid #bbf7d0',
+                              borderRadius: '0.375rem',
+                              padding: '0.4rem',
+                              color: '#15803d',
+                              fontWeight: 'bold',
+                              fontSize: '0.8rem',
+                              textAlign: 'center'
+                            }}>
+                              Status: RESOLVED ✅
+                            </div>
+                          )}
+                          {ev.missionStatus === 'FAILED' && (
+                            <div style={{
+                              backgroundColor: '#fef2f2',
+                              border: '1px solid #fecaca',
+                              borderRadius: '0.375rem',
+                              padding: '0.4rem',
+                              color: '#b91c1c',
+                              fontWeight: 'bold',
+                              fontSize: '0.8rem',
+                              textAlign: 'center'
+                            }}>
+                              Status: FAILED ❌
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+              </div>
             </div>
           )}
           {/* Level Complete Overlay */}
