@@ -4,6 +4,7 @@ import CityMap from './CityMap';
 import HelpGuideModal from './HelpGuideModal';
 import { getInitialGameState, applyEventResult } from '../engine/gameState';
 import { binarySearch } from '../engine/algorithms/binarySearch';
+import { findMinMax } from '../engine/algorithms/maxMin';
 import { LogOut, ArrowRight, AlertTriangle, Activity, HelpCircle } from 'lucide-react';
 
 export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
@@ -371,6 +372,47 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
     addLog(`Selected: ${node.name} (${node.type})`);
   };
 
+  // Helper to format incident title and icon for display
+  const formatIncidentDisplay = (incident) => {
+    if (!incident) return '';
+    const titleFormatted = incident.title
+      ? incident.title
+          .split(' ')
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ')
+      : 'Incident';
+    return `${incident.icon || '⚠️'} ${titleFormatted} — ${incident.severity}/10`;
+  };
+
+  // DAA Engine: Compute Maximum & Minimum severity analysis using Divide & Conquer
+  const activeIncidentsForAnalysis = activeEvents.filter(
+    ev => (ev.missionStatus === 'ACTIVE' || ev.missionStatus === 'RESPONDING') && typeof ev.severity === 'number'
+  );
+
+  let incidentAnalysis = null;
+  if (activeIncidentsForAnalysis.length > 1) {
+    // 1. Collect their severity values
+    const severityValues = activeIncidentsForAnalysis.map(ev => ev.severity);
+
+    // 2. Pass them to the Maximum/Minimum algorithm
+    const { minimum: minSeverity, maximum: maxSeverity } = findMinMax(severityValues);
+
+    // 3. Determine highest severity incident
+    const highestIncident = activeIncidentsForAnalysis.find(ev => ev.severity === maxSeverity);
+
+    // 4. Determine lowest severity incident
+    const lowestIncident = activeIncidentsForAnalysis.find(ev => ev.severity === minSeverity);
+
+    if (highestIncident && lowestIncident) {
+      incidentAnalysis = {
+        highest: highestIncident,
+        lowest: lowestIncident,
+        minSeverity,
+        maxSeverity
+      };
+    }
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#f8fafc' }}>
       <StatusBar state={gameState} onOpenHelp={() => setIsHelpOpen(true)} />
@@ -444,6 +486,27 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
               </div>
               <div style={{ fontSize: '0.875rem', color: '#475569' }}>
                 Recommended emergency vehicles: <strong>{recommendedVehicles}</strong>
+              </div>
+            </div>
+          )}
+
+          {/* Level 2 DAA Engine Analysis: Maximum and Minimum */}
+          {level === 2 && incidentAnalysis && (
+            <div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1d4ed8', marginBottom: '0.5rem' }}>
+                <Activity size={16} />
+                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase' }}>CITY INCIDENT ANALYSIS</span>
+              </div>
+              <div style={{ fontSize: '0.8rem', marginBottom: '0.35rem' }}>
+                <div style={{ color: '#64748b', fontWeight: '600' }}>Highest Severity:</div>
+                <div style={{ color: '#dc2626', fontWeight: 'bold' }}>{formatIncidentDisplay(incidentAnalysis.highest)}</div>
+              </div>
+              <div style={{ fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                <div style={{ color: '#64748b', fontWeight: '600' }}>Lowest Severity:</div>
+                <div style={{ color: '#2563eb', fontWeight: 'bold' }}>{formatIncidentDisplay(incidentAnalysis.lowest)}</div>
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#64748b', borderTop: '1px solid #dbeafe', paddingTop: '0.35rem', fontStyle: 'italic', lineHeight: '1.3' }}>
+                DAA Engine: Maximum/Minimum analysis identifies the severity range among active incidents.
               </div>
             </div>
           )}
@@ -571,6 +634,49 @@ export default function GameInterface({ onQuit, onLevelComplete, level = 1 }) {
           {/* Active Events Overlay for Level 2 */}
           {level === 2 && activeEvents.length > 0 && (
             <div style={{ position: 'absolute', top: '1rem', right: '1rem', width: '350px', display: 'flex', flexDirection: 'column', gap: '1rem', zIndex: 40, maxHeight: '90%', overflowY: 'auto' }}>
+              {/* CITY INCIDENT ANALYSIS Card (When multiple incidents are active) */}
+              {incidentAnalysis && (
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '2px solid #3b82f6',
+                  borderRadius: '0.5rem',
+                  padding: '1rem',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e40af', marginBottom: '0.75rem' }}>
+                    <Activity size={18} />
+                    <h3 style={{ fontSize: '1rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                      CITY INCIDENT ANALYSIS
+                    </h3>
+                  </div>
+
+                  <div style={{ marginBottom: '0.75rem', fontSize: '0.875rem' }}>
+                    <div style={{ color: '#64748b', fontWeight: '600', marginBottom: '0.2rem' }}>Highest Severity:</div>
+                    <div style={{ color: '#dc2626', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                      {formatIncidentDisplay(incidentAnalysis.highest)}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '0.75rem', fontSize: '0.875rem' }}>
+                    <div style={{ color: '#64748b', fontWeight: '600', marginBottom: '0.2rem' }}>Lowest Severity:</div>
+                    <div style={{ color: '#2563eb', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                      {formatIncidentDisplay(incidentAnalysis.lowest)}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    borderTop: '1px solid #e2e8f0',
+                    paddingTop: '0.5rem',
+                    fontSize: '0.75rem',
+                    color: '#64748b',
+                    fontStyle: 'italic',
+                    lineHeight: '1.4'
+                  }}>
+                    DAA Engine: Maximum/Minimum analysis identifies the severity range among active incidents.
+                  </div>
+                </div>
+              )}
+
               {activeEvents.map(ev => (
                 <div key={ev.id} style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: ev.type === 'medical' ? '#ef4444' : ev.type === 'fire' ? '#f97316' : '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
